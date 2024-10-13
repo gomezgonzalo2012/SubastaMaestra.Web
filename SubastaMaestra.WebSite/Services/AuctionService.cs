@@ -21,5 +21,16 @@ namespace SubastaMaestra.WebSite.Services
             }
             throw new Exception(result.Message);
         }
+
+        public async Task<AuctionDTO> GetByIdAsync(int id)
+        {
+            var result = await _httpClient.GetFromJsonAsync<OperationResult<AuctionDTO>>($"api/Auction/{id}");
+
+            if (result.Success)
+            {
+                return result.Value;
+            }
+            throw new Exception(result.Message);
+        }
     }
 }

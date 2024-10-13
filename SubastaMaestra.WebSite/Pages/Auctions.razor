@@ -31,7 +31,10 @@ else
                             <p class="card-text">Fecha de fin: @item.FinishDate.ToShortDateString()</p>
                             <p class="card-text">Fecha de inicio: @item.StartDate.ToShortDateString()</p>
                             <p class="card-text">Estado: @item.State</p>
-                            <a class="btn btn-primary btn-sm" href="auction/{id}">Ver más</a>
+                            @* <a class="btn btn-primary btn-sm" @href="string.format(" auction /{0}", id)">ver más</a> *@
+                            @* <NavLink class="btn btn-primary btn-sm" href="auction/{@item.Id}">ver más</NavLink> *@
+                            <a class="btn btn-primary btn-sm" href="@($"auction/{item.Id}")"> ver mas</a>
+
                         </div>
                     </div>
                 </div>
@@ -42,44 +45,6 @@ else
     
 }
 
-@* <table class="table">
-    <thead>
-    <tr>
-        <th>Titulo</th>
-        <th>Fecha de inicio</th>
-        <th>Fecha de fin</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-
-    </tr>
-    </thead>
-    <tbody>
-        @if(auctionList == null)
-        {
-            <tr>
-                <td colspan="5" align="center">
-                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" />
-                </td>
-            </tr>
-        }
-        else
-        {
-            @foreach(var item in auctionList)
-            {
-                <tr>
-                    <td >@item.Title</td>
-                    <td >@item.FinishDate.ToShortDateString()</td>
-                    <td>@item.FinishDate</td>
-                    <td>@item.State</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="auction/{id}">Ver más</a>
-
-                    </td>
-                </tr>
-            }
-        }
-    </tbody>
-</table> *@
 
 @code {
     List<AuctionDTO> auctionList = new List<AuctionDTO>();

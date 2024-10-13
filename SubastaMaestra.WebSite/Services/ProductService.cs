@@ -1,4 +1,5 @@
-﻿using SubastaMaestra.Models.DTOs.Product;
+﻿using SubastaMaestra.Entities.Core;
+using SubastaMaestra.Models.DTOs.Product;
 using SubastaMaestra.Models.Utils;
 using System.Net.Http.Json;
 
@@ -11,6 +12,19 @@ namespace SubastaMaestra.WebSite.Services
         public ProductService(HttpClient http )
         {
                _httpClient = http;
+        }
+
+        public async Task<HttpContent> CreateProduct(ProductCreateDTO productDTO)
+        {
+            var result = await _httpClient.PostAsJsonAsync<ProductCreateDTO>("api/Product", productDTO);
+            if (result.IsSuccessStatusCode)
+            {
+                return result.Content;
+            }
+            else
+            {
+                return result.Content;
+            }
         }
 
         public async Task<List<ProductDTO>> GetAll()

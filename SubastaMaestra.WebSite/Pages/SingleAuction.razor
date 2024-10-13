@@ -1,7 +1,61 @@
-﻿@page "/auction" 
+﻿@page "/auction/{id:int}"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.WebSite.Services;
 
-<h3>Component</h3>
-
+@inject IAuctionService _auctionService;
 @code {
+    [Parameter]
+    public int Id { get; set; }
 
+    private AuctionDTO? auction;
+
+    protected override async Task OnInitializedAsync()
+    {
+        auction = await _auctionService.GetByIdAsync(Id);
+    }
+}
+
+@if (auction != null)
+{
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>@auction.Title</h1>
+                <p>Cierre: @auction.FinishDate.ToString("dd/MM/yyyy, HH:mm") hs</p>
+            </div>
+            <div class="col text-end">
+                <a class="btn btn-primary" href="@($"create-product")">Publicar un producto</a>
+            </div>
+        </div>
+
+        <div class="row">
+            @if(auction.Products != null)
+            {
+                @foreach (var product in auction.Products)
+                {
+                    <div class="col-md-3">
+                        <div class="card mb-4">
+                            <img src="placeholder-image-url" class="card-img-top" alt="Imagen de Producto">
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text">
+                                    Precio: @product.InitialPrice.ToString("C")<br />
+                                    Ofertas: @product.NumberOfOffers<br />
+                                    Vendedor: @product.Description
+                                </p>
+                                <a class="btn btn-purple" href="@($"product/{product.Id}")">Ofertar</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+            }
+            
+        </div>
+    </div>
+}
+else
+{
+    <p>Cargando subasta...</p>
 }
