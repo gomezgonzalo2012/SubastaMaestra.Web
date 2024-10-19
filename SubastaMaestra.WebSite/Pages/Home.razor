@@ -1,7 +1,103 @@
 ﻿@page "/"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
 
-<PageTitle>Home</PageTitle>
+@inject IAuctionService _auctionService;
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-pzjw8f+ua7Kw1TIq8cbJDzkGFfvefrglrVo62BBvQ3St9xfZGzBxJKes0+LtuCM" crossorigin="anonymous">
 
-<h1>Hello, world!</h1>
+    <link href='http://fonts.googleapis.com/css?family=Belgrano|Courgette&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 
-Welcome to your new app.
+    <!-- Bootshape -->
+    <link href="css/bootshape.css" rel="stylesheet">
+
+    <style>
+        .custom-img-height {
+    max-height: 300px; /* Ajusta la altura a lo que necesites */
+    object-fit: cover; /* Recorta la imagen si es necesario */
+    width: 100%; /* Mantiene la imagen adaptada al contenedor */
+}
+    </style>
+</head>
+
+<body>
+    <!-- Slide gallery -->
+    <div class="jumbotron">
+        <div class="container">
+            <div class="col-xs-12">
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://previews.123rf.com/images/vectorpointstudio/vectorpointstudio2002/vectorpointstudio200200012/139358678-concepto-de-negocio-de-subasta-la-gente-hace-una-oferta-en-la-casa-de-subastas-p%C3%BAblica-plantilla.jpg" class="d-block img-fluid custom-img-height" alt="...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Categories Section -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center">
+            <button class="btn btn-outline-secondary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Active)">Subastas abiertas</button>
+            <button class="btn btn-outline-secondary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Pending)">Subastas próximas</button>
+            <button class="btn btn-outline-secondary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Closed)">Subastas finalizadas</button>
+        </div>
+    </div>
+
+    <!-- Thumbnails -->
+    <div class="container thumbs">
+        <div class="row">
+            @if (auctions != null && auctions.Count > 0)
+            {
+                @foreach (var auction in auctions)
+                {
+                    <div class="col-sm-6 col-md-4">
+                        <div class="thumbnail">
+                            <!-- Aquí puedes poner una imagen asociada a la subasta si la tienes -->
+                            <img src="img/pic1.jpg" alt="" class="img-fluid">
+                            <div class="caption">
+                                <h3>@auction.Title</h3>
+                                <p>Fecha de inicio: @auction.StartDate.ToString("dd/MM/yyyy")</p>
+                                <p>Fecha de fin: @auction.FinishDate.ToString("dd/MM/yyyy")</p>
+                                <a href="productos" class="btn btn-outline-primary">Ver Productos</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- Mostrar mensaje cuando no hay subastas -->
+                <div class="col-12 text-center">
+                    <p>No hay subastas disponibles</p>
+                </div>
+            }
+        </div>
+    </div>
+
+</body>
+</html>
+
+@code
+{
+    private List<AuctionDTO> auctions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FilterAuctions(AuctionState.Active); // Subastas activas por defecto
+    }
+
+    private async Task FilterAuctions(AuctionState state)
+    {
+        auctions = await _auctionService.GetAuctionsByState(state);
+    }
+
+}

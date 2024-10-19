@@ -1,0 +1,98 @@
+﻿@page "/Productos/{auctionId:int}"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
+
+@inject IProductService _productService;
+
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-pzjw8f+ua7Kw1TIq8cbJDzkGFfvefrglrVo62BBvQ3St9xfZGzBxJKes0+LtuCM" crossorigin="anonymous">
+
+    <link href='http://fonts.googleapis.com/css?family=Belgrano|Courgette&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+    <!-- Bootshape -->
+    <link href="css/bootshape.css" rel="stylesheet">
+
+</head>
+
+<body>
+<!-- Título de la subasta y botón de publicar producto -->
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="display-4">@auctionTitle</h1>
+        <p class="lead">Cierre: @finishDate.ToString("dd/MM/yyyy HH:mm")</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-primary">Publicar producto</button>
+    </div>
+</div>
+
+@if (products == null)
+{
+    <p>Cargando productos...</p>
+}
+else if (!products.Any())
+{
+    <p>No hay productos en esta subasta.</p>
+}
+else
+{
+    <div class="container thumbs">
+        <div class="row">
+            @foreach (var product in products)
+            {
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="@product.ImgUrl" alt="@product.Name" class="img-fluid">
+                        <div class="caption">
+                            <h3>@product.Name</h3>
+                            <p>@product.Description</p>
+                            <p>Precio: @product.InitialPrice</p>
+                            <p>Oferta: @product.FinalPrice</p>
+                            <a href="ProductoDetalles/@product.Id" class="btn btn-primary">detalles</a>
+                            <a href="#" class="btn btn-primary">Ofertar</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+</body>
+</html>
+
+@code {
+    [Parameter]
+    public int auctionId { get; set; }
+
+    private List<ProductDTO> products;
+    private string auctionTitle;
+    private DateTime finishDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuctionProducts();
+    }
+
+    private async Task LoadAuctionProducts()
+    {
+        try
+        {
+            products = await _productService.GetProductsByAuction(auctionId);
+
+            // Aquí también puedes cargar los detalles de la subasta si no los tienes
+            auctionTitle = "Título de la Subasta";  // Reemplaza con datos reales de la subasta
+            finishDate = DateTime.Now.AddDays(2);  // Reemplaza con la fecha de la subasta real
+        }
+        catch (Exception ex)
+        {
+            // Manejo de errores
+        }
+    }
+}

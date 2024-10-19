@@ -12,57 +12,76 @@
     }
 }
 
-<h3>Crear Producto</h3>
-
 <EditForm Model="@product" OnValidSubmit="SubmitProduct">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <div class="container mt-5">
 
-    <div class="form-group">
+    <div class="alert alert-primary text-center" role="alert">
+        La empresa aplicará al producto vendido un 10% de comisión por cada venta realizada
+    </div>
+
+     <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+                <div class="form-group mb-3">
         <label for="name">Nombre del producto</label>
-        <InputText id="name" class="form-control" @bind-Value="product.Name" />
+        <InputText id="name" class="form-control" placeholder="Nombre del producto" @bind-Value="product.Name" />
     </div>
 
-    <div class="form-group">
-        <label for="condition">Condición</label>
-        <InputSelect id="condition" class="form-control" @bind-Value="product.Condition">
-            <option value="">Selecciona una condición</option>
-            <option value="Nuevo">Nuevo</option>
-            <option value="Usado">Usado</option>
-        </InputSelect>
-    </div>
+                <div class="form-group mb-3">
+                    <label for="initialPrice">Precio inicial</label>
+                    <InputNumber id="initialPrice" class="form-control" placeholder="Precio base" @bind-Value="product.InitialPrice" />
+                </div>
 
-    <div class="form-group">
-        <label for="initialPrice">Precio inicial</label>
-        <InputNumber id="initialPrice" class="form-control" @bind-Value="product.InitialPrice" />
-    </div>
+                <!-- Selección de subasta -->
+                <div class="form-group mb-3">
+                    <label for="subasta">Subasta</label>
+                    <select class="form-control" id="subasta" required>
+                        <option selected disabled>Selecciona una subasta</option>
+                        <option>Subasta 1</option>
+                        <option>Subasta 2</option>
+                        <option>Subasta 3</option>
+                    </select>
+                </div>
 
-    <div class="form-group">
+               <div class="form-group mb-3">
+                    <label for="condition">Condición</label>
+                    <InputSelect id="condition" class="form-control" @bind-Value="product.Condition">
+                        <option value="">Selecciona una condición</option>
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Usado">Usado</option>
+                    </InputSelect>
+                </div> 
+
+                <div class="form-group mb-3">
         <label for="imgUrl">URL de imagen</label>
         <InputText id="imgUrl" class="form-control" @bind-Value="product.ImgUrl" />
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button">Cargar archivo</button>
+                    </div>
     </div>
 
-    <div class="form-group">
+                <div class="form-group mb-3">
         <label for="description">Descripción</label>
         <InputTextArea id="description" class="form-control" @bind-Value="product.Description" />
     </div>
-
-    <div class="form-group">
+@* 
+                <div class="form-group mb-3">
         <label for="categoryId">Categoría ID</label>
         <InputNumber id="categoryId" class="form-control" @bind-Value="product.CategoryId" />
     </div>
 
-    <div class="form-group">
+                <div class="form-group mb-3">
         <label for="sellerId">Vendedor ID</label>
         <InputNumber id="sellerId" class="form-control" @bind-Value="product.SellerId" />
     </div>
 
-    <div class="form-group">
+                <div class="form-group mb-3">
         <label for="auctionId">Subasta ID</label>
         <InputNumber id="auctionId" class="form-control" @bind-Value="product.AuctionId" />
-    </div>
+    </div> *@
 
-    <div class="form-group">
+                <div class="form-group mb-3">
         <label for="deliveryCondition">Condición de entrega</label>
         <InputSelect id="deliveryCondition" class="form-control" @bind-Value="product.DeliveryCondition">
             <option value="">Selecciona una opción</option>
@@ -70,6 +89,8 @@
             <option value="Envío">Envío</option>
         </InputSelect>
     </div>
-
+      </div>
+        </div>
     <button type="submit" class="btn btn-primary">Guardar Producto</button>
+    </div>
 </EditForm>
