@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthenticationService AuthService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -8,9 +13,45 @@
         <div class="top-row px-4">
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
+        <button class="navbar-toggler"  @onclick="HandleLogout">Cerrar sesión</button>
+
+    <AuthorizeView>
+        <Authorized>
+            <div class="user-info">
+                Hola, @userName
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="user-info">
+                No has iniciado sesión
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+    private string userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+             userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
+        }
+    }
+}
+@code {
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}
