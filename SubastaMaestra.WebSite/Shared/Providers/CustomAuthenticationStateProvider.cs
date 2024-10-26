@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
-namespace SubastaMaestra.WebSite.Services;
+namespace SubastaMaestra.WebSite.Shared.Providers;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
@@ -60,6 +60,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(jwt);
         return token.Claims.ToArray();
+    }
+
+    public void NotifyAuthState()// actualizza estado de auth
+    {
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 }
 

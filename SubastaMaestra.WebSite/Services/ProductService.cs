@@ -14,18 +14,42 @@ namespace SubastaMaestra.WebSite.Services
                _httpClient = http;
         }
 
-        public async Task<HttpContent> CreateProduct(ProductCreateDTO productDTO)
+        public async Task<(bool succes , string message)> CreateProduct(ProductCreateDTO productDTO)
         {
-            var result = await _httpClient.PostAsJsonAsync<ProductCreateDTO>("api/Product", productDTO);
-            if (result.IsSuccessStatusCode)
+            var response = await _httpClient.PostAsJsonAsync("api/Product", productDTO);
+            string message;
+            bool succes = false;
+            if (response.IsSuccessStatusCode)
             {
-                return result.Content;
+                message= "Exitosamente cargado";
+                succes = true;
+            }
+            // Si la respuesta no fue exitosa, leer el contenido como string
+            var errorContent = await response.Content.ReadAsStringAsync();
+
+            // Si el contenido no es nulo o vacío, usarlo como mensaje de error
+            if (!string.IsNullOrEmpty(errorContent))
+            {
+                message = $"Error from server: {errorContent}";
             }
             else
             {
-                return result.Content;
+                // Si no hay contenido, usar un mensaje de error genérico
+                message = $"Error: {response.StatusCode} {response.ReasonPhrase}";
             }
+            return  (succes,message);
+
         }
+
+        public async Task<HttpResponseMessage> CreateProduct2(MultipartFormDataContent content)
+        { 
+
+            var response = await _httpClient.PostAsync("api/Product", content);
+
+            return response;
+
+        }
+
 
         public async Task<List<ProductDTO>> GetAll()
         {

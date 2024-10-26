@@ -1,12 +1,8 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
-@using SubastaMaestra.WebSite.Services
+﻿@page "/login"
+
+@using SubastaMaestra.WebSite.Services;
 @using SubastaMaestra.Models.DTOs.User;
-
 @inject AuthenticationService AuthService
-@inject NavigationManager Navigation
-
-
-@page "/login"
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -35,7 +31,7 @@
 </EditForm>
 
 @code {
-    private UserDTO user = new UserDTO();
+    private LoginRequestDTO user = new LoginRequestDTO();
     private string ErrorMessage;
 
     private async Task HandleLogin()

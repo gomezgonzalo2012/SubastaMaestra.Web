@@ -5,6 +5,8 @@ using SubastaMaestra.WebSite;
 using SubastaMaestra.WebSite.Services;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor.Services;
+using SubastaMaestra.WebSite.Shared.Providers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -22,4 +24,5 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https:/
 builder.Services.AddScoped<IAuctionService, AuctionService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddSweetAlert2();
+builder.Services.AddMudServices();
 await builder.Build().RunAsync();

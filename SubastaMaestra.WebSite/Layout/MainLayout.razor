@@ -1,9 +1,10 @@
-﻿@inherits LayoutComponentBase
+﻿ @inherits LayoutComponentBase
 @inject AuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -11,22 +12,30 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-        <button class="navbar-toggler"  @onclick="HandleLogout">Cerrar sesión</button>
+            
+            <AuthorizeView>
+                <Authorized>
+                    <div class="user-info">
+                         @userName
+                        <button class="" @onclick="HandleLogout">Cerrar sesión</button>
+                    </div>
+                    <br />
 
-    <AuthorizeView>
-        <Authorized>
-            <div class="user-info">
-                Hola, @userName
-            </div>
-        </Authorized>
-        <NotAuthorized>
-            <div class="user-info">
-                No has iniciado sesión
-            </div>
-        </NotAuthorized>
-    </AuthorizeView>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="login">
+                            <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Login
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="registration">
+                            <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Register
+                        </NavLink>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
 
         <article class="content px-4">
             @Body
@@ -44,7 +53,7 @@
 
         if (user.Identity.IsAuthenticated)
         {
-             userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
+            userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
         }
     }
 }

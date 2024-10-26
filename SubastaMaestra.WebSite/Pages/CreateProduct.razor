@@ -1,18 +1,27 @@
-﻿@page "/create-product"
+﻿@page "/create-product/{auctionId}"
+@using Microsoft.AspNetCore.Authorization
 @using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.Entities.Enums;
+@attribute [Authorize]
 @using SubastaMaestra.WebSite.Services;
-
 @inject IProductService productService;
-@code {
-    private ProductCreateDTO product = new ProductCreateDTO();
+@inject AuthenticationService authService;
 
-    private async Task SubmitProduct()
-    {
-        var response = await productService.CreateProduct(product);
-    }
+@if (string.IsNullOrEmpty(auctionId))
+{
+    @:None
+}
+else
+{
+    @auctionId
 }
 
+
 <h3>Crear Producto</h3>
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert alert-danger">@Message</div>
+}
 
 <EditForm Model="@product" OnValidSubmit="SubmitProduct">
     <DataAnnotationsValidator />
@@ -24,11 +33,13 @@
     </div>
 
     <div class="form-group">
-        <label for="condition">Condición</label>
+        <label for="condition">Estado del producto</label>
         <InputSelect id="condition" class="form-control" @bind-Value="product.Condition">
-            <option value="">Selecciona una condición</option>
-            <option value="Nuevo">Nuevo</option>
-            <option value="Usado">Usado</option>
+            <option value="">Selecciona una opción</option>
+            @foreach (var condition in Enum.GetValues(typeof(ProductConditions)))
+            {
+                <option value="@condition">@condition</option>
+            }
         </InputSelect>
     </div>
 
@@ -39,7 +50,8 @@
 
     <div class="form-group">
         <label for="imgUrl">URL de imagen</label>
-        <InputText id="imgUrl" class="form-control" @bind-Value="product.ImgUrl" />
+        <InputFile OnChange="HandleFileSelected" />
+        @* <InputText id="imgUrl" class="form-control" @bind-Value="product.ImgUrl" /> *@
     </div>
 
     <div class="form-group">
@@ -52,24 +64,86 @@
         <InputNumber id="categoryId" class="form-control" @bind-Value="product.CategoryId" />
     </div>
 
-    <div class="form-group">
-        <label for="sellerId">Vendedor ID</label>
-        <InputNumber id="sellerId" class="form-control" @bind-Value="product.SellerId" />
-    </div>
+    <!-- Campo oculto para SellerId (ID del usuario) -->
+    <input type="hidden" id="sellerId" @bind="product.SellerId" />
 
-    <div class="form-group">
-        <label for="auctionId">Subasta ID</label>
-        <InputNumber id="auctionId" class="form-control" @bind-Value="product.AuctionId" />
-    </div>
+    <!-- Campo oculto para AuctionId -->
+    <input type="hidden" id="auctionId" @bind="product.AuctionId" />
 
     <div class="form-group">
         <label for="deliveryCondition">Condición de entrega</label>
         <InputSelect id="deliveryCondition" class="form-control" @bind-Value="product.DeliveryCondition">
             <option value="">Selecciona una opción</option>
-            <option value="Entrega en mano">Entrega en mano</option>
-            <option value="Envío">Envío</option>
+            @foreach (var condition in Enum.GetValues(typeof(DeliveryModes)))
+            {
+                <option value="@condition">@condition</option>
+            }
         </InputSelect>
     </div>
 
+
     <button type="submit" class="btn btn-primary">Guardar Producto</button>
 </EditForm>
+
+@code {
+    private string userId;
+
+    [Parameter]
+    public string auctionId { get; set; }
+
+    private IBrowserFile selectedImage;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        // Guardar el archivo seleccionado en una variable para enviarlo más tarde
+        selectedImage = e.File;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        userId = await authService.GetUserId();
+        // Establece los valores en el modelo
+        product.SellerId = int.Parse(userId); // Convertir el userId a entero si es necesario
+        product.AuctionId = int.Parse(auctionId); // Establecer el AuctionId obtenido por parámetro
+    }
+}
+
+@code {
+    private ProductCreateDTO product = new ProductCreateDTO();
+    string Message = string.Empty;
+
+    private async Task SubmitProduct()
+    {
+
+        if (selectedImage != null)
+        {
+            var buffer = new byte[selectedImage.Size];
+            await selectedImage.OpenReadStream().ReadAsync(buffer);
+            string imageBase64 = Convert.ToBase64String(buffer);
+
+            // Crear el contenido de la solicitud HTTP
+            var productDto = new ProductCreateDTO
+                {
+                    Name = product.Name,
+                    InitialPrice = product.InitialPrice,
+                    Description = product.Description,
+                    CategoryId = product.CategoryId,
+                    SellerId = product.SellerId,
+                    Condition = product.Condition,
+                    DeliveryCondition = product.DeliveryCondition,
+                    AuctionId = product.AuctionId,
+                    ImgUrl = imageBase64 // Enviar la imagen en base64
+                };
+
+            var response = await productService.CreateProduct(productDto);
+            Message = response.message;
+           
+        }
+       
+    }
+
+
+   
+}
+
+

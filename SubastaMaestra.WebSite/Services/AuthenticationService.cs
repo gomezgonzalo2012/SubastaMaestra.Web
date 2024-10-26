@@ -1,9 +1,12 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using SubastaMaestra.Models.DTOs.User;
+using SubastaMaestra.WebSite.Shared.Providers;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SubastaMaestra.WebSite.Services;
@@ -20,9 +23,10 @@ public class AuthenticationService
         _authenticationStateProvider = authenticationStateProvider;
     }
 
-    public async Task<bool> Login(UserDTO user)
+    public async Task<bool> Login(LoginRequestDTO loginRequest)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/login/authenticate", user);
+        var response = await _httpClient.PostAsJsonAsync("/login", loginRequest);
+
 
         if (response.IsSuccessStatusCode)
         {
@@ -31,6 +35,8 @@ public class AuthenticationService
             await _localStorage.SetItemAsync("authToken", content.Token); // Almacenar token en local storage
 
             ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(content.Token);
+            ((CustomAuthenticationStateProvider)_authenticationStateProvider).NotifyAuthState();
+
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", content.Token);
 
@@ -45,6 +51,21 @@ public class AuthenticationService
         await _localStorage.RemoveItemAsync("authToken");
         ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
         _httpClient.DefaultRequestHeaders.Authorization = null;
+    }
+
+    public async Task<string> GetUserId()
+    {
+        var token = await _localStorage.GetItemAsync<string>("authToken");
+
+        if (token == null)
+            return null;
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
+
+        return userIdClaim?.Value; // Devuelve el UserId o null si no se encuentra
     }
 }
 

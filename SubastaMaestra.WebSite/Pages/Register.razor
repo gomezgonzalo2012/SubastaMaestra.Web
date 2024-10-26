@@ -1,0 +1,38 @@
+﻿@page "/registration";
+@using SubastaMaestra.Models.DTOs.User;
+@using MudBlazor;
+
+<h3>Register</h3>
+
+<MudForm Model="user" @ref="form">
+    <DataAnnotationsValidator />
+    <MudTextField Label="First name" HelperText="Max. 20 characters"
+                  @bind-Value="user.Name" For="@(() => user.Name)" />
+    <MudTextField Label="Email" Class="mt-3"
+                  @bind-Value="user.Email" For="@(() => user.Email)" />
+    <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                  @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password" />
+
+    <MudCardActions>
+        <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" OnClick="RegisterAsync" 
+        Color="Color.Primary" Class="ml-auto">Register</MudButton>
+    </MudCardActions>
+
+</MudForm>
+
+@code {
+    UserCreateDTO user = new UserCreateDTO();
+    bool success;
+    MudForm form;
+    private async Task RegisterAsync( )
+    {
+        await form.Validate();
+        if (form.IsValid)
+
+        {
+            Console.WriteLine("Hola");
+        };
+    }
+}
+
+

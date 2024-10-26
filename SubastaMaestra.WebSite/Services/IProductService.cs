@@ -7,6 +7,8 @@ namespace SubastaMaestra.WebSite.Services
     {
         Task<List<ProductDTO>> GetAll();
 
-        Task<HttpContent> CreateProduct(ProductCreateDTO productDTO);
+        Task<(bool succes, string message)> CreateProduct(ProductCreateDTO productDTO);
+        Task<HttpResponseMessage> CreateProduct2(MultipartFormDataContent content);
+
     }
 }
