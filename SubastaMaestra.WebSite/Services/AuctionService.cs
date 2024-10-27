@@ -37,7 +37,7 @@ namespace SubastaMaestra.WebSite.Services
         public async Task<List<AuctionDTO>> GetAuctionsByState(AuctionState state)
         {
 
-            var result = await _httpClient.GetFromJsonAsync<OperationResult<List<AuctionDTO>>>($"api/Auction/list?state={(int)state}");
+            var result = await _httpClient.GetFromJsonAsync<OperationResult<List<AuctionDTO>>>($"api/Auction/list");
 
             if (result.Success)
             {

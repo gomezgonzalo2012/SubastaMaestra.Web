@@ -8,14 +8,6 @@
 <head>
     <title>Subasta Maestra</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap -->
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-pzjw8f+ua7Kw1TIq8cbJDzkGFfvefrglrVo62BBvQ3St9xfZGzBxJKes0+LtuCM" crossorigin="anonymous">
-
-    <link href='http://fonts.googleapis.com/css?family=Belgrano|Courgette&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-
-    <!-- Bootshape -->
-    <link href="css/bootshape.css" rel="stylesheet">
 
     <style>
         .custom-img-height {
@@ -62,12 +54,12 @@
                     <div class="col-sm-6 col-md-4">
                         <div class="thumbnail">
                             <!-- Aquí puedes poner una imagen asociada a la subasta si la tienes -->
-                            <img src="img/pic1.jpg" alt="" class="img-fluid">
+                            <img src="https://media.istockphoto.com/id/917901978/es/foto/martillo-en-la-subasta-de-palabra.jpg?s=1024x1024&w=is&k=20&c=DyDazkc_or6ewmelN6M5YKtMGJMGP2P8dfRS27o_MTQ=" alt="" class="img-fluid">
                             <div class="caption">
                                 <h3>@auction.Title</h3>
                                 <p>Fecha de inicio: @auction.StartDate.ToString("dd/MM/yyyy")</p>
                                 <p>Fecha de fin: @auction.FinishDate.ToString("dd/MM/yyyy")</p>
-                                <a href="productos" class="btn btn-outline-primary">Ver Productos</a>
+                                <a href="productos/@auction.Id" class="btn btn-outline-primary">Ver Productos</a>
                             </div>
                         </div>
                     </div>
