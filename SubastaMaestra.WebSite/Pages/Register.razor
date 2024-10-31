@@ -1,100 +1,99 @@
 ﻿@page "/registro"
-@using System.ComponentModel.DataAnnotations;
+@using SubastaMaestra.Models.DTOs.User
 @using SubastaMaestra.Entities.Enums
-@using SubastaMaestra.Models.DTOs.User;
-@using SubastaMaestra.WebSite.Services
+@inject IUserService _userService
+@inject NavigationManager Navigation
 
-@inject IUserService userService ;
-
-<div class="container">
-    <div class="row">
-        <!-- Imagen a la izquierda -->
-        <div class="col-md-6 d-flex justify-content-center align-items-center">
-            <div class="image-placeholder" style="width: 300px; height: 300px; background-color: lightgray; display: flex; justify-content: center; align-items: center;">
-                <span>IMAGEN</span>
-            </div>
-        </div>
-
-        <!-- Formulario de registro a la derecha -->
+<h2 class="text-center mt-4">Registro</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2 class="text-center mb-4">Registrarse</h2>
-            <EditForm Model="@userCreateDTO" OnValidSubmit="@Registrarse">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+            <div class="card shadow-sm p-4">
+                <EditForm Model="@user" OnValidSubmit="OnSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-                <!-- Nombre -->
-                <div class="form-group mb-3">
-                    <InputText class="form-control" placeholder="Nombre" @bind-Value="userCreateDTO.Name" />
-                </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre Completo</label>
+                        <InputText id="name" class="form-control" @bind-Value="user.Name" required />
+                    </div>
 
-                <!-- Correo electrónico -->
-                <div class="form-group mb-3">
-                    <InputText class="form-control" placeholder="Correo Electrónico" @bind-Value="userCreateDTO.Email" />
-                </div>
+                    <div class="mb-3">
+                        <label for="documentType" class="form-label">Tipo de Documento</label>
+                        <InputSelect id="documentType" class="form-control" @bind-Value="user.DocumentType" required>
+                            <option value="">Selecciona una opción</option>
+                            @foreach (var docType in Enum.GetValues(typeof(DocumType)))
+                            {
+                                <option value="@docType">@docType</option>
+                            }
+                        </InputSelect>
+                    </div>
 
-                <!-- Contraseña -->
-                <div class="form-group mb-3">
-                    <InputText class="form-control" type="password" placeholder="Contraseña" @bind-Value="userCreateDTO.Password" />
-                </div>
+                    <div class="mb-3">
+                        <label for="documentNumber" class="form-label">Número de Documento</label>
+                        <InputText id="documentNumber" class="form-control" @bind-Value="user.DocumentNumber" required />
+                    </div>
 
-                <!-- Repetir contraseña -->
-                <div class="form-group mb-3">
-                    <InputText class="form-control" type="password" placeholder="Repetir Contraseña" @bind-Value="userCreateDTO.ConfirmPassword" />
-                </div>
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Número de Teléfono</label>
+                        <InputText id="phoneNumber" class="form-control" @bind-Value="user.PhoneNumber" />
+                    </div>
 
-                <!-- Teléfono -->
-                <div class="form-group mb-3">
-                    <InputText class="form-control" placeholder="Teléfono" @bind-Value="userCreateDTO.PhoneNumber" />
-                </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <InputText id="email" type="email" class="form-control" @bind-Value="user.Email" required />
+                    </div>
 
-                <div class="form-group mb-3">
-                    <InputSelect class="form-control" @bind-Value="userCreateDTO.DocumentType">
-                        <option value="">Selecciona un tipo de documento</option>
-                        @foreach (var documentType in Enum.GetValues(typeof(DocumType)))
-                        {
-                            <option value="@((int)documentType)">@documentType</option>
-                        }
-                    </InputSelect>
-                </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <InputText id="password" type="password" class="form-control" @bind-Value="user.Password" required />
+                    </div>
 
-                <div class="form-group mb-3">
-                    <InputText class="form-control" placeholder="Número de Documento" @bind-Value="userCreateDTO.DocumentNumber" />
-                </div>
+                    <div class="mb-3">
+                        <label for="personType" class="form-label">Tipo de Persona</label>
+                        <InputSelect id="personType" class="form-control" @bind-Value="user.PersonType" required>
+                            <option value="">Selecciona una opción</option>
+                            @foreach (var personType in Enum.GetValues(typeof(PersonType)))
+                            {
+                                <option value="@personType">@personType</option>
+                            }
+                        </InputSelect>
+                    </div>
 
-                <!-- Persona (por ejemplo, tipo de usuario) -->
-                <div class="form-group mb-3">
-                    <InputSelect class="form-control" @bind-Value="userCreateDTO.PersonType">
-                        <option value="">Tipo de persona</option>
-                        @foreach (var personType in Enum.GetValues(typeof(PersonType)))
-                        {
-                            <option value="@((int)personType)">@personType</option>
-                        }
-                    </InputSelect>
-                </div>
+                    <button type="submit" class="btn btn-primary w-100 mt-3">Registrarse</button>
+                </EditForm>
 
-                <!-- Botón de registro -->
-                <div class="form-group mb-3 text-center">
-                    <button type="submit" class="btn btn-primary">Registrarse</button>
-                </div>
-
-                <!-- Enlace para iniciar sesión -->
-                <div class="text-center">
-                    <a href="/iniciar-sesion">¿Ya tienes cuenta? Inicia sesión</a>
-                </div>
-            </EditForm>
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-danger mt-3">@errorMessage</div>
+                }
+            </div>
         </div>
     </div>
 </div>
+
 @code {
-    private UserCreateDTO userCreateDTO = new UserCreateDTO();
+    private UserCreateDTO user = new UserCreateDTO();
+    private string errorMessage = string.Empty;
 
-    private async Task Registrarse()
+    private async Task OnSubmit()
     {
-        var response = await userService.Register(userCreateDTO);
+        try
+        {
+            var result = await _userService.Register(user);
 
+            if (result?.Success == true)
+            {
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = "Error en el registro. Inténtelo nuevamente.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
     }
-
 }
-
-
-

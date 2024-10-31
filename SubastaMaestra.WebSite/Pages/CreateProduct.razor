@@ -1,96 +1,146 @@
-﻿@page "/create-product"
+﻿@page "/create-product/{auctionId}"
+@using Microsoft.AspNetCore.Authorization
 @using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.Entities.Enums;
+@attribute [Authorize]
 @using SubastaMaestra.WebSite.Services;
-
 @inject IProductService productService;
-@code {
-    private ProductCreateDTO product = new ProductCreateDTO();
+@inject AuthenticationService authService;
 
-    private async Task SubmitProduct()
+
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="alert alert-danger text-center">@Message</div>
+}
+
+<div class="container d-flex justify-content-center">
+    <EditForm Model="@product" OnValidSubmit="SubmitProduct">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <!-- Contenedor principal del formulario con ancho reducido -->
+        <div class="card shadow p-4" style="max-width: 500px;">
+            <h3 class="text-center my-4">Crear Producto</h3>
+
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Nombre del producto</label>
+                <InputText id="name" class="form-control form-control-sm" @bind-Value="product.Name" placeholder="Ej. Televisor LED 55 pulgadas" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="condition" class="form-label">Estado del producto</label>
+                <InputSelect id="condition" class="form-control form-control-sm" @bind-Value="product.Condition">
+                    <option value="">Selecciona una opción</option>
+                    @foreach (var condition in Enum.GetValues(typeof(ProductConditions)))
+                    {
+                        <option value="@condition">@condition</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="initialPrice" class="form-label">Precio inicial</label>
+                <InputNumber id="initialPrice" class="form-control form-control-sm" @bind-Value="product.InitialPrice" placeholder="Ej. 1500" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="imgUrl" class="form-label">URL de imagen</label>
+                <InputFile OnChange="HandleFileSelected" class="form-control form-control-sm" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <InputTextArea id="description" class="form-control form-control-sm" @bind-Value="product.Description" placeholder="Describa el producto aquí..." />
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="categoryId" class="form-label">Categoría ID</label>
+                <InputNumber id="categoryId" class="form-control form-control-sm" @bind-Value="product.CategoryId" placeholder="Ej. 3" />
+            </div>
+
+            <input type="hidden" id="sellerId" @bind="product.SellerId" />
+            <input type="hidden" id="auctionId" @bind="product.AuctionId" />
+
+            <div class="form-group mb-3">
+                <label for="deliveryCondition" class="form-label">Condición de entrega</label>
+                <InputSelect id="deliveryCondition" class="form-control form-control-sm" @bind-Value="product.DeliveryCondition">
+                    <option value="">Selecciona una opción</option>
+                    @foreach (var condition in Enum.GetValues(typeof(DeliveryModes)))
+                    {
+                        <option value="@condition">@condition</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Guardar Producto</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+
+
+@code {
+    private string userId;
+
+    [Parameter]
+    public string auctionId { get; set; }
+
+    private IBrowserFile selectedImage;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
-        var response = await productService.CreateProduct(product);
+        // Guardar el archivo seleccionado en una variable para enviarlo más tarde
+        selectedImage = e.File;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        userId = await authService.GetUserId();
+        // Establece los valores en el modelo
+        product.SellerId = int.Parse(userId); // Convertir el userId a entero si es necesario
+        product.AuctionId = int.Parse(auctionId); // Establecer el AuctionId obtenido por parámetro
     }
 }
 
-<EditForm Model="@product" OnValidSubmit="SubmitProduct">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="container mt-5">
+@code {
+    private ProductCreateDTO product = new ProductCreateDTO();
+    string Message = string.Empty;
 
-    <div class="alert alert-primary text-center" role="alert">
-        La empresa aplicará al producto vendido un 10% de comisión por cada venta realizada
-    </div>
+    private async Task SubmitProduct()
+    {
 
-     <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
-                <div class="form-group mb-3">
-        <label for="name">Nombre del producto</label>
-        <InputText id="name" class="form-control" placeholder="Nombre del producto" @bind-Value="product.Name" />
-    </div>
+        if (selectedImage != null)
+        {
+            var buffer = new byte[selectedImage.Size];
+            await selectedImage.OpenReadStream().ReadAsync(buffer);
+            string imageBase64 = Convert.ToBase64String(buffer);
 
-                <div class="form-group mb-3">
-                    <label for="initialPrice">Precio inicial</label>
-                    <InputNumber id="initialPrice" class="form-control" placeholder="Precio base" @bind-Value="product.InitialPrice" />
-                </div>
+            // Crear el contenido de la solicitud HTTP
+            var productDto = new ProductCreateDTO
+                {
+                    Name = product.Name,
+                    InitialPrice = product.InitialPrice,
+                    Description = product.Description,
+                    CategoryId = product.CategoryId,
+                    SellerId = product.SellerId,
+                    Condition = product.Condition,
+                    DeliveryCondition = product.DeliveryCondition,
+                    AuctionId = product.AuctionId,
+                    ImgUrl = imageBase64 // Enviar la imagen en base64
+                };
 
-                <!-- Selección de subasta -->
-                <div class="form-group mb-3">
-                    <label for="subasta">Subasta</label>
-                    <select class="form-control" id="subasta" required>
-                        <option selected disabled>Selecciona una subasta</option>
-                        <option>Subasta 1</option>
-                        <option>Subasta 2</option>
-                        <option>Subasta 3</option>
-                    </select>
-                </div>
+            var response = await productService.CreateProduct(productDto);
+            Message = response.message;
 
-               <div class="form-group mb-3">
-                    <label for="condition">Condición</label>
-                    <InputSelect id="condition" class="form-control" @bind-Value="product.Condition">
-                        <option value="">Selecciona una condición</option>
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="Usado">Usado</option>
-                    </InputSelect>
-                </div> 
+        }
 
-                <div class="form-group mb-3">
-        <label for="imgUrl">URL de imagen</label>
-        <InputText id="imgUrl" class="form-control" @bind-Value="product.ImgUrl" />
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button">Cargar archivo</button>
-                    </div>
-    </div>
+    }
 
-                <div class="form-group mb-3">
-        <label for="description">Descripción</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="product.Description" />
-    </div>
-@* 
-                <div class="form-group mb-3">
-        <label for="categoryId">Categoría ID</label>
-        <InputNumber id="categoryId" class="form-control" @bind-Value="product.CategoryId" />
-    </div>
 
-                <div class="form-group mb-3">
-        <label for="sellerId">Vendedor ID</label>
-        <InputNumber id="sellerId" class="form-control" @bind-Value="product.SellerId" />
-    </div>
 
-                <div class="form-group mb-3">
-        <label for="auctionId">Subasta ID</label>
-        <InputNumber id="auctionId" class="form-control" @bind-Value="product.AuctionId" />
-    </div> *@
+}
 
-                <div class="form-group mb-3">
-        <label for="deliveryCondition">Condición de entrega</label>
-        <InputSelect id="deliveryCondition" class="form-control" @bind-Value="product.DeliveryCondition">
-            <option value="">Selecciona una opción</option>
-            <option value="Entrega en mano">Entrega en mano</option>
-            <option value="Envío">Envío</option>
-        </InputSelect>
-    </div>
-      </div>
-        </div>
-    <button type="submit" class="btn btn-primary">Guardar Producto</button>
-    </div>
-</EditForm>
+
