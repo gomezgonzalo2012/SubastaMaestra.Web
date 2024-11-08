@@ -1,8 +1,10 @@
-﻿@page "/ProductoDetalles/{id:int}"
+﻿<!-- ProductoDetalles.razor -->
+@page "/ProductoDetalles/{id:int}"
 @using SubastaMaestra.Models.DTOs.Auction
 @using SubastaMaestra.Models.DTOs.Product
 @using SubastaMaestra.WebSite.Services
 @using SubastaMaestra.Entities.Enums
+@using SubastaMaestra.WebSite.wwwroot.Components
 
 @inject IProductService _productService;
 
@@ -37,9 +39,21 @@
                         <p class="card-text"><strong>Ofertas:</strong> @Product.NumberOfOffers</p>
                         <p class="card-text"><strong>Modo de entrega:</strong> @(Product.DeliveryCondition == 0 ? "Pick-up" : "Delivery")</p>
 
-                        @if (Product.CurrentState.ToString() == "Active")
+                        @if (Product.CurrentState.ToString() == "Active" )
                         {
-                            <button class="btn btn-primary mt-3">Ofertar</button>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <button class="btn btn-primary mt-3" @onclick="OpenBidModal">Ofertar</button>
+                                </Authorized>
+                                <NotAuthorized>
+                                        <div class="nav-item">
+                                            <NavLink class="btn btn-outline-primary btn-sm" href="login">
+                                                <i class="bi bi-box-arrow-in-right me-1"></i> Inicia sesión para ofertar
+                                            </NavLink>
+                                        </div>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                            
                         }
                         else
                         {
@@ -54,12 +68,18 @@
     }
 </div>
 
+@if (IsBidModalOpen)
+{
+    <BidModal ProductId="@Product.Id" OnBidPlaced="HandleBidPlaced" OnClose="CloseBidModal" />
+}
+
 @code {
     [Parameter]
     public int Id { get; set; }
 
     private ProductDTO Product { get; set; }
     private bool ProductFound { get; set; } = true;
+    private bool IsBidModalOpen { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,5 +96,25 @@
             Console.WriteLine("Error al cargar el producto: " + ex.Message);
             ProductFound = false;
         }
+    }
+
+    private void OpenBidModal()
+    {
+        IsBidModalOpen = true;
+    }
+
+    private void CloseBidModal(bool bidPlaced)
+    {
+        IsBidModalOpen = false;
+
+        if (bidPlaced)
+        {
+            // Lógica adicional, como recargar datos del producto o mostrar un mensaje de éxito.
+        }
+    }
+
+    private void HandleBidPlaced()
+    {
+        // Aquí puedes actualizar el número de ofertas o cualquier otro detalle relevante.
     }
 }

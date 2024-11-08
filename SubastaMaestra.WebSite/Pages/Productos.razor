@@ -54,8 +54,7 @@
                                     @if (auctionState == AuctionState.Active)
                                     {
                                         <p>Ofertas: @product.NumberOfOffers</p>
-                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles</a>
-                                        <button class="btn btn-success">Ofertar</button>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles/Ofertar</a>
                                     }
                                     else if (auctionState == AuctionState.Pending)
                                     {
@@ -79,6 +78,8 @@
 </body>
 
 </html>
+
+
 
 @code {
     [Parameter]

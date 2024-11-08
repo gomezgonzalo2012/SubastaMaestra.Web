@@ -32,7 +32,7 @@ namespace SubastaMaestra.WebSite.Services
             // Si el contenido no es nulo o vacío, usarlo como mensaje de error
             if (!string.IsNullOrEmpty(errorContent))
             {
-                message = $"Error from server: {errorContent}";
+                message = $"Producto agregado correctamente!";
             }
             else
             {
