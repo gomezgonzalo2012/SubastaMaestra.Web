@@ -1,4 +1,4 @@
-﻿using SubastaMaestra.WebSite.wwwroot.Components;
+﻿using SubastaMaestra.WebSite.wwwroot.Modals;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;

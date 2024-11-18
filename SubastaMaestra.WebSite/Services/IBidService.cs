@@ -1,5 +1,5 @@
 ﻿using SubastaMaestra.Models.DTOs.Bid;
-using SubastaMaestra.WebSite.wwwroot.Components;
+using SubastaMaestra.WebSite.wwwroot.Modals;
 
 namespace SubastaMaestra.WebSite.Services
 {

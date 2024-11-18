@@ -1,0 +1,82 @@
+﻿@using SubastaMaestra.Models.DTOs;
+@inject IUserService UserService
+@inject AuthenticationService AuthService
+
+<div class="modal show" tabindex="-1" style="display: block;" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notificaciones</h5>
+                <button type="button" class="close" @onclick="CloseModal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (isLoading)
+                {
+                    <p>No tieness notificaciones</p>
+                }
+                else if (notifications?.Any() == true)
+                {
+                    <ul class="list-group">
+                        @foreach (var notification in notifications)
+                        {
+                            <li class="list-group-item">
+                                <div>
+                                    <h6>@notification.Title (@notification.NotificationType)</h6>
+                                    <p>@notification.Body</p>
+                                    <small class="text-muted">Fecha: @notification.Created_at.ToString("g")</small>
+                                </div>
+                                @if (notification.Product != null)
+                                {
+                                    <div class="mt-2">
+                                        <strong>Producto:</strong> @notification.Product.Name
+                                    </div>
+                                }
+                                @if (notification.State.HasValue && notification.State.Value)
+                                {
+                                    <span class="badge bg-success">Leída</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">No leída</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p>No tienes notificaciones.</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnClose { get; set; }
+    private List<NotificationDTO> notifications;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNotifications();
+    }
+
+    private async Task LoadNotifications()
+    {
+        isLoading = true;
+        var userId = await AuthService.GetUserId();
+        notifications = await UserService.GetNotificationsAsync(userId);
+        isLoading = false;
+    }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

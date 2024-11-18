@@ -1,53 +1,116 @@
-﻿ @inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @inject AuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+@using SubastaMaestra.WebSite.wwwroot.Modals
 @using Microsoft.AspNetCore.Components.Authorization
 
-
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+    @if (!IsAuthPage)
+    {
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+    }
 
     <main>
-        <div class="top-row px-4 d-flex justify-content-between align-items-center shadow-sm bg-light">
-            <h2 class="m-0">Subasta Maestra</h2>
+        @if (!IsAuthPage)
+        {
+            <div class="top-row px-4 d-flex justify-content-between align-items-center shadow-sm bg-light">
+                <h2 class="m-0">Subasta Maestra</h2>
 
-            <AuthorizeView>
-                <Authorized>
-                    <div class="user-info d-flex align-items-center gap-2">
-                        <span class="fw-bold">@userName</span>
-                        <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Cerrar sesión</button>
-                    </div>
-                </Authorized>
-                <NotAuthorized>
-                    <div class="d-flex gap-3">
-                        <div class="nav-item">
-                            <NavLink class="btn btn-outline-primary btn-sm" href="login">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
-                            </NavLink>
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="user-info d-flex align-items-center gap-2">
+                            <button class="btn btn-outline-info btn-sm" @onclick="OpenNotificationModal">Notificaciones</button>
+                            <span class="fw-bold">@userName</span>
+                            <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Cerrar sesión</button>
                         </div>
-                        <div class="nav-item">
-                            <NavLink class="btn btn-outline-success btn-sm" href="registro">
-                                <i class="bi bi-pencil-square me-1"></i> Registrarse
-                            </NavLink>
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="d-flex gap-3">
+                            <div class="nav-item">
+                                <NavLink class="btn btn-outline-primary btn-sm" href="login">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+                                </NavLink>
+                            </div>
+                            <div class="nav-item">
+                                <NavLink class="btn btn-outline-success btn-sm" href="registro">
+                                    <i class="bi bi-pencil-square me-1"></i> Registrarse
+                                </NavLink>
+                            </div>
                         </div>
-                    </div>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
-
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        }
 
         <article class="content px-4">
             @Body
         </article>
     </main>
 </div>
-
+@if (isNotificationModalOpen)
+{
+    <NotificationModal OnClose="CloseNotificationModal" />
+}
 @code {
     private string userName;
+    private bool IsAuthPage => Navigation.Uri.Contains("login") || Navigation.Uri.Contains("registro");
+    private bool isNotificationModalOpen;
+
+    private void OpenNotificationModal()
+    {
+        isNotificationModalOpen = true;
+    }
+
+    private void CloseNotificationModal()
+    {
+        isNotificationModalOpen = false;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+        await UpdateUserNameAsync();
+    }
+
+    private async Task UpdateUserNameAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
+        }
+        else
+        {
+            userName = null;
+        }
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await InvokeAsync(UpdateUserNameAsync);
+        StateHasChanged();
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthService.Logout();
+        Navigation.NavigateTo("/login");
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}
+
+@* @code {
+    private string userName;
+    private bool IsAuthPage => Navigation.Uri.Contains("login") || Navigation.Uri.Contains("registro");
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,11 +122,10 @@
             userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
         }
     }
-}
-@code {
+
     private async Task HandleLogout()
     {
         await AuthService.Logout();
         Navigation.NavigateTo("/login");
     }
-}
+} *@
