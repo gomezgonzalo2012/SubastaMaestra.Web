@@ -1,7 +1,94 @@
 ﻿@page "/"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
 
-<PageTitle>Home</PageTitle>
+@inject IAuctionService _auctionService;
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<h1>Hello, world!</h1>
+    <style>
+        .custom-img-height {
+    max-height: 300px; /* Ajusta la altura a lo que necesites */
+    object-fit: cover; /* Recorta la imagen si es necesario */
+    width: 100%; /* Mantiene la imagen adaptada al contenedor */
+}
+    </style>
+</head>
+<body>
+    <!-- Slide gallery -->
+    <div class="jumbotron bg-light text-center">
+        <div class="container">
+            <div class="col-xs-12">
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="https://previews.123rf.com/images/vectorpointstudio/vectorpointstudio2002/vectorpointstudio200200012/139358678-concepto-de-negocio-de-subasta-la-gente-hace-una-oferta-en-la-casa-de-subastas-p%C3%BAblica-plantilla.jpg" class="d-block w-100 custom-img-height" alt="Subasta">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <!-- Categories Section -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-center mb-4">
+            <button class="btn btn-primary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Active)">Subastas abiertas</button>
+            <button class="btn btn-secondary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Pending)">Subastas próximas</button>
+            <button class="btn btn-danger mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Closed)">Subastas finalizadas</button>
+        </div>
+    </div>
+
+    <!-- Thumbnails -->
+    <div class="container thumbs">
+        <div class="row">
+            @if (auctions != null && auctions.Count > 0)
+            {
+                @foreach (var auction in auctions)
+                {
+                    <div class="col-sm-6 col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="https://media.istockphoto.com/id/917901978/es/foto/martillo-en-la-subasta-de-palabra.jpg?s=1024x1024&w=is&k=20&c=DyDazkc_or6ewmelN6M5YKtMGJMGP2P8dfRS27o_MTQ=" alt="Imagen de subasta" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">@auction.Title</h5>
+                                <p class="card-text">Fecha de inicio: @auction.StartDate.ToString("dd/MM/yyyy")</p>
+                                <p class="card-text">Fecha de fin: @auction.FinishDate.ToString("dd/MM/yyyy")</p>
+                                <a href="productos/@auction.Id" class="btn btn-outline-primary">Ver Productos</a>
+                                @if (auction.State == AuctionState.Pending)
+                                {
+                                    <a href="create-product/@auction.Id" class="btn btn-outline-success">Agregar Producto</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center">
+                    <p>No hay subastas disponibles en este momento.</p>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>
+
+@code
+{
+    private List<AuctionDTO> auctions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FilterAuctions(AuctionState.Active); // Subastas activas por defecto
+    }
+
+    private async Task FilterAuctions(AuctionState state)
+    {
+        auctions = await _auctionService.GetAuctionsByState(state);
+    }
+
+}

@@ -1,4 +1,5 @@
-﻿using SubastaMaestra.Models.DTOs.Auction;
+﻿using SubastaMaestra.Entities.Enums;
+using SubastaMaestra.Models.DTOs.Auction;
 using SubastaMaestra.Models.DTOs.Product;
 using SubastaMaestra.Models.Utils;
 using System.Net.Http.Json;
@@ -31,6 +32,19 @@ namespace SubastaMaestra.WebSite.Services
                 return result.Value;
             }
             throw new Exception(result.Message);
+        }
+
+        public async Task<List<AuctionDTO>> GetAuctionsByState(AuctionState state)
+        {
+
+            var result = await _httpClient.GetFromJsonAsync<OperationResult<List<AuctionDTO>>>($"api/Auction/list");
+
+            if (result.Success)
+            {
+                return result.Value.Where(a => a.State == state).ToList();
+            }
+            throw new Exception(result.Message);
+
         }
     }
 }

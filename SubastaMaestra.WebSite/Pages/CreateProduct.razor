@@ -2,88 +2,85 @@
 @using Microsoft.AspNetCore.Authorization
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
-@attribute [Authorize]
+@attribute [Authorize];
 @using SubastaMaestra.WebSite.Services;
 @inject IProductService productService;
 @inject AuthenticationService authService;
-
-@if (string.IsNullOrEmpty(auctionId))
-{
-    @:None
-}
-else
-{
-    @auctionId
-}
+@inject IJSRuntime js
 
 
-<h3>Crear Producto</h3>
 @if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-danger">@Message</div>
+    <div class="alert alert-danger text-center">@Message</div>
 }
 
-<EditForm Model="@product" OnValidSubmit="SubmitProduct">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <div class="form-group">
-        <label for="name">Nombre del producto</label>
-        <InputText id="name" class="form-control" @bind-Value="product.Name" />
-    </div>
+<div class="container d-flex justify-content-center">
+    <EditForm Model="@product" OnValidSubmit="SubmitProduct">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="form-group">
-        <label for="condition">Estado del producto</label>
-        <InputSelect id="condition" class="form-control" @bind-Value="product.Condition">
-            <option value="">Selecciona una opción</option>
-            @foreach (var condition in Enum.GetValues(typeof(ProductConditions)))
-            {
-                <option value="@condition">@condition</option>
-            }
-        </InputSelect>
-    </div>
+        <!-- Contenedor principal del formulario con ancho reducido -->
+        <div class="card shadow p-4" style="max-width: 500px;">
+            <h3 class="text-center my-4">Crear Producto</h3>
 
-    <div class="form-group">
-        <label for="initialPrice">Precio inicial</label>
-        <InputNumber id="initialPrice" class="form-control" @bind-Value="product.InitialPrice" />
-    </div>
+            <div class="form-group mb-3">
+                <label for="name" class="form-label">Nombre del producto</label>
+                <InputText id="name" class="form-control form-control-sm" @bind-Value="product.Name" placeholder="Nombre del producto" />
+            </div>
 
-    <div class="form-group">
-        <label for="imgUrl">URL de imagen</label>
-        <InputFile OnChange="HandleFileSelected" />
-        @* <InputText id="imgUrl" class="form-control" @bind-Value="product.ImgUrl" /> *@
-    </div>
+            <div class="form-group mb-3">
+                <label for="condition" class="form-label">Estado del producto</label>
+                <InputSelect id="condition" class="form-control form-control-sm" @bind-Value="product.Condition">
+                    <option value="">Selecciona una opción</option>
+                    @foreach (var condition in Enum.GetValues(typeof(ProductConditions)))
+                    {
+                        <option value="@condition">@condition</option>
+                    }
+                </InputSelect>
+            </div>
 
-    <div class="form-group">
-        <label for="description">Descripción</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="product.Description" />
-    </div>
+            <div class="form-group mb-3">
+                <label for="initialPrice" class="form-label">Precio inicial</label>
+                <InputNumber id="initialPrice" class="form-control form-control-sm" @bind-Value="product.InitialPrice" placeholder="Ej. 1500" />
+            </div>
 
-    <div class="form-group">
-        <label for="categoryId">Categoría ID</label>
-        <InputNumber id="categoryId" class="form-control" @bind-Value="product.CategoryId" />
-    </div>
+            <div class="form-group mb-3">
+                <label for="imgUrl" class="form-label">URL de imagen</label>
+                <InputFile OnChange="HandleFileSelected" class="form-control form-control-sm" />
+            </div>
 
-    <!-- Campo oculto para SellerId (ID del usuario) -->
-    <input type="hidden" id="sellerId" @bind="product.SellerId" />
+            <div class="form-group mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <InputTextArea id="description" class="form-control form-control-sm" @bind-Value="product.Description" placeholder="Describa el producto aquí..." />
+            </div>
 
-    <!-- Campo oculto para AuctionId -->
-    <input type="hidden" id="auctionId" @bind="product.AuctionId" />
+            <div class="form-group mb-3">
+                <label for="categoryId" class="form-label">Categoría ID</label>
+                <InputNumber id="categoryId" class="form-control form-control-sm" @bind-Value="product.CategoryId" placeholder="Ej. 3" />
+            </div>
 
-    <div class="form-group">
-        <label for="deliveryCondition">Condición de entrega</label>
-        <InputSelect id="deliveryCondition" class="form-control" @bind-Value="product.DeliveryCondition">
-            <option value="">Selecciona una opción</option>
-            @foreach (var condition in Enum.GetValues(typeof(DeliveryModes)))
-            {
-                <option value="@condition">@condition</option>
-            }
-        </InputSelect>
-    </div>
+            <input type="hidden" id="sellerId" @bind="product.SellerId" />
+            <input type="hidden" id="auctionId" @bind="product.AuctionId" />
 
+            <div class="form-group mb-3">
+                <label for="deliveryCondition" class="form-label">Condición de entrega</label>
+                <InputSelect id="deliveryCondition" class="form-control form-control-sm" @bind-Value="product.DeliveryCondition">
+                    <option value="">Selecciona una opción</option>
+                    @foreach (var condition in Enum.GetValues(typeof(DeliveryModes)))
+                    {
+                        <option value="@condition">@condition</option>
+                    }
+                </InputSelect>
+            </div>
 
-    <button type="submit" class="btn btn-primary">Guardar Producto</button>
-</EditForm>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Guardar Producto</button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
 
 @code {
     private string userId;
@@ -137,13 +134,13 @@ else
 
             var response = await productService.CreateProduct(productDto);
             Message = response.message;
-           
+
         }
-       
+
     }
 
 
-   
+
 }
 
 

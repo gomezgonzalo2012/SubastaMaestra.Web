@@ -1,0 +1,116 @@
+﻿@page "/Productos/{auctionId:int}"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
+
+@inject IProductService _productService;
+@inject IAuctionService _auctionService;
+
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <!-- Título de la subasta y botón de publicar producto -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-4">@auctionTitle</h1>
+                <p class="lead">Cierre: @finishDate.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="col-md-4 text-end">
+                @if (auctionState == AuctionState.Pending)
+                {
+                    <button class="btn btn-primary">Publicar producto</button>
+                }
+            </div>
+        </div>
+
+        @if (products == null)
+        {
+            <p class="text-center">Cargando productos...</p>
+        }
+        else if (!products.Any())
+        {
+            <p class="text-center">No hay productos en esta subasta.</p>
+        }
+        else
+        {
+            <div class="thumbs">
+                <div class="row">
+                    @foreach (var product in products)
+                    {
+                        <div class="col-sm-6 col-md-4 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <img src="@product.ImgUrl" alt="@product.Name" class="card-img-top">
+                                <div class="card-body">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">Estado: @product.Condition</p>
+                                    <p class="card-text">Precio Base: $@product.InitialPrice</p>
+
+                                    @if (auctionState == AuctionState.Active)
+                                    {
+                                        <p>Ofertas: @product.NumberOfOffers</p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles/Ofertar</a>
+                                    }
+                                    else if (auctionState == AuctionState.Pending)
+                                    {
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles</a>
+                                    }
+                                    else if (auctionState == AuctionState.Closed)
+                                    {
+                                        <p>Ofertas: @product.NumberOfOffers</p>
+                                        <p>Precio Final: $@product.FinalPrice</p>
+                                        <p>Ganador: @product.BuyerName</p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</body>
+
+</html>
+
+
+
+@code {
+    [Parameter]
+    public int auctionId { get; set; }
+
+    private List<ProductDTO> products;
+    private string auctionTitle;
+    private DateTime finishDate;
+    private AuctionState auctionState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuctionAndProducts();
+    }
+
+    private async Task LoadAuctionAndProducts()
+    {
+        try
+        {
+            // Obtener datos de la subasta
+            var auctionDetails = await _auctionService.GetByIdAsync(auctionId);
+            auctionTitle = auctionDetails.Title;
+            finishDate = auctionDetails.FinishDate;
+            auctionState = auctionDetails.State;
+
+            // Obtener productos relacionados a la subasta
+            products = await _productService.GetProductsByAuction(auctionId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
+}
