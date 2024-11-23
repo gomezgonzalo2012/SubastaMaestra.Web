@@ -58,7 +58,9 @@ public class AuthenticationService
         var token = await _localStorage.GetItemAsync<string>("authToken");
 
         if (token == null)
-            return null;
+        {
+            await Logout();
+        }
 
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
@@ -67,6 +69,26 @@ public class AuthenticationService
 
         return userIdClaim?.Value; // Devuelve el UserId o null si no se encuentra
     }
+    public async Task<string> GetTokenAsync()
+    {
+        var token = await _localStorage.GetItemAsync<string>("authToken");
+        return token;
+
+    }
+    public bool IsTokenExpired(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+
+        // Obtiene la fecha de expiración del token
+        var expirationDate = jwtToken.ValidTo;
+
+        // Compara con la fecha y hora actual (UTC)
+        return expirationDate < DateTime.UtcNow;
+    }
+
+
+
 }
 
 public class TokenResponse

@@ -18,6 +18,7 @@ builder.Services.AddScoped<AuthenticationService>(); // Servicio para manejar au
 
 builder.Services.AddAuthorizationCore();
 
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://subastamaestraapi.azurewebsites.net") });
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7093") });
 
 builder.Services.AddScoped<IAuctionService, AuctionService>();

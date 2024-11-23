@@ -35,13 +35,24 @@
                 <i class="bi bi-pencil-square me-1"></i> Registrarse
             </NavLink>
             </div>
-            <button type="submit" class="btn btn-primary w-100 mt-3">Iniciar Sesión</button>
+            <button type="submit" class="btn btn-purple w-100 mt-3">Iniciar Sesión</button>
         </EditForm>
     </div>
 </div>
+<style>
+
+    .btn-purple {
+        color: #fff;
+        background-color: #8901CF;
+        border-color: #8901CF;
+    }
+</style>
 
 
 @code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? returnUrl { get; set; }
     private LoginRequestDTO user = new LoginRequestDTO();
     private string ErrorMessage;
 
@@ -52,11 +63,13 @@
         if (result)
         {
             // Redirige a la vista principal
-            Navigation.NavigateTo("/");
+            // Navigation.NavigateTo("/");
+            Navigation.NavigateTo(returnUrl ?? "/"); // Redirigir al returnUrl o a la raíz
         }
         else
         {
             ErrorMessage = "Error login";
         }
     }
+
 }

@@ -37,16 +37,8 @@
                 {
                     <div class="col-md-3">
                         <div class="card mb-4">
-                            @if (product.ImgUrl != null)
-                            {
-                                <img src="@product.ImgUrl" class="card-img-top" alt="Imagen de Producto">
-                            }
-                            else
-                            {
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQgnqWjR_pgv-T6HqIi_Nb2VBp1r0RdCyXm6g&s" class="card-img-top" alt="Imagen de Producto">
-
-                            }  
-                                <div class="card-body">
+                            <img src="placeholder-image-url" class="card-img-top" alt="Imagen de Producto">                                
+                            <div class="card-body">
                                 <h5 class="card-title">@product.Name</h5>
                                 <p class="card-text">
                                     Precio: @product.InitialPrice.ToString("C")<br />

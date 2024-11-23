@@ -5,6 +5,7 @@
 @attribute [Authorize];
 @inject AuthenticationService authService;
 @inject IBidService BidService
+@inject NavigationManager NavManager
 
 <div class="modal show" tabindex="-1" style="display: block;" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
@@ -63,7 +64,19 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        // Obtener el token del localStorage
+        var token = await authService.GetTokenAsync();
+
+        // Verificar si el token no existe o ha expirado
+        if (string.IsNullOrWhiteSpace(token) || authService.IsTokenExpired(token))
+        {
+            // Guardar la URL actual para redirigir después del login
+            var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+            NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+        }
         userId = await authService.GetUserId();
+
     }
 
     private async Task SubmitBid()

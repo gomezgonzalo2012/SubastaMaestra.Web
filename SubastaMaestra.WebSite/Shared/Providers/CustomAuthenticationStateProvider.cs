@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 namespace SubastaMaestra.WebSite.Shared.Providers;
 
@@ -24,8 +25,9 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         var token = await _localStorage.GetItemAsync<string>("authToken");
 
-        if (string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(token) || IsTokenExpired(token))
         {
+            await _localStorage.RemoveItemAsync("authToken");
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
 
@@ -37,6 +39,21 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
         return new AuthenticationState(user);
     }
+    public bool IsTokenExpired(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var expClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "exp");
+
+        if (expClaim != null && long.TryParse(expClaim.Value, out var exp))
+        {
+            var expDateTime = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime;
+            return expDateTime <= DateTime.UtcNow; // Devuelve true si el token ya expiró
+        }
+
+        return true; // Si no encuentra el claim, se considera expirado
+    }
+
 
     public void MarkUserAsAuthenticated(string token)
     {
