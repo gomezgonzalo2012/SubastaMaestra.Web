@@ -2,7 +2,9 @@
 
 <h3>Mis Ofertas</h3>
 
-@using SubastaMaestra.Models.DTOs.Bid;
+@using SubastaMaestra.Models.DTOs.Bid
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.WebSite.Services;
 
 @inject IUserService _userService;
@@ -18,6 +20,18 @@
         int user_id = int.Parse(userId);
         Bids = await _userService.GetMyBids(user_id);
     }
+
+    private string GetProductState(ProductState state)
+    {
+        return state switch
+        {
+            ProductState.Sold => "Vendido",
+            ProductState.Disabled => "Deshabilitado",
+            ProductState.Pending => "Pendiente",
+            ProductState.Active => "Activo",
+            _ => "Desconocido"
+        };
+    }
 }
 
 @if (Bids != null)
@@ -28,7 +42,13 @@
             {
                 @foreach (var bid in Bids)
                 {
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-6 mb-4 position-relative">
+                        <!-- Rótulo de vendido (solo visible si el estado es Sold) -->
+                        @if (bid.Product.CurrentState == ProductState.Sold && (int.Parse(userId) == bid.Product.BuyerId))
+                        {
+                            <div class="won-banner">Ganado</div>
+                        }
+
                         <div class="card shadow-sm">
                             <div class="row g-0">
                                 <!-- Imagen del producto -->
@@ -55,7 +75,7 @@
                                             Precio inicial: <span class="fw-bold">@bid.Product.InitialPrice.ToString("N2")</span><br />
                                             Tu oferta: <span class="text-success fw-bold">@bid.Price.ToString("N2")</span><br />
                                             Método de pago: @bid.PaymentMethods<br />
-                                            Estado del producto: @bid.Product.CurrentState
+                                            Estado del producto: @GetProductState(bid.Product.CurrentState)
                                         </p>
 
                                         <!-- Botón de detalles -->
@@ -65,8 +85,8 @@
                             </div>
                         </div>
                     </div>
-
                 }
+
             }
             else
             {
@@ -95,9 +115,8 @@ else
         object-position: center; /* Centra la imagen en el contenedor */
     }
 
-    .btn-purple {
-        color: #fff;
-        background-color: #8901CF;
-        border-color: #8901CF;
-    }
+    
+
+   
+
 </style>

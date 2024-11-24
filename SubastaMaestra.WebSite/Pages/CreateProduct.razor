@@ -1,6 +1,6 @@
 ﻿@page "/create-product/{auctionId}"
-@using Microsoft.AspNetCore.Authorization
 @using CurrieTechnologies.Razor.SweetAlert2
+@using Microsoft.AspNetCore.Authorization
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
 @attribute [Authorize];
@@ -26,13 +26,14 @@
     }
 
 }
+
 <div class="container d-flex justify-content-center">
     <EditForm Model="@product" OnValidSubmit="SubmitProduct">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <!-- Contenedor principal del formulario con ancho reducido -->
-        <div class="card shadow p-4" style="max-width: 500px;">
+        <div class="card shadow p-4" style="max-width: 700px;">
             <h3 class="text-center my-4">Crear Producto</h3>
 
             <div class="form-group mb-3">
@@ -104,7 +105,6 @@
     public string auctionId { get; set; }
 
     private IBrowserFile selectedImage;
-
     private string? ErrorMessage;
 
 
@@ -137,6 +137,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        userId = await authService.GetUserId();
+        // Establece los valores en el modelo
+        product.SellerId = int.Parse(userId); // Convertir el userId a entero si es necesario
+        product.AuctionId = int.Parse(auctionId); // Establecer el AuctionId obtenido por parámetro
+        
         // Obtener el token del localStorage
         var token = await authService.GetTokenAsync();
 
@@ -148,6 +153,7 @@
             NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
 
         }
+
     }
 
 }

@@ -3,6 +3,7 @@
 <h3>Mis Products</h3>
 
 @using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.WebSite.Services;
 
 @inject IUserService _userService;
@@ -29,7 +30,11 @@
             {
                 @foreach (var product in products)
                 {
-                    <div class="col-md-12 mb-4">
+                    <div class="col-md-12 mb-4 position-relative">
+                        @if (product.CurrentState == ProductState.Sold)
+                        {
+                            <div class="sold-banner">Vendido</div>
+                        }
                         <div class="card shadow-sm">
                             <div class="row g-0">
                                 <!-- Imagen del producto -->
@@ -45,7 +50,7 @@
                                     <div class="card-body">
                                         <!-- Título y estado de la subasta -->
                                         <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <span class="badge bg-warning text-dark">
+                                            <span class="badge light-tag text-dark">
                                                 <i class="bi bi-calendar-event"></i> Subasta: @product.Auction?.Title
                                             </span>
                                             <span class="text-muted">
@@ -66,7 +71,7 @@
                                         <hr />
 
                                         <!-- Precio inicial y precio final (si está disponible) -->
-                                        <p class="fw-bold">Precio Inicial</p>
+                                        <p class="fw-bold mb-0">Precio Inicial</p>
                                         <h4 class="text-primary">AR$ @product.InitialPrice.ToString("N2")</h4>
 
                                         @if (product.FinalPrice.HasValue && product.FinalPrice.Value > 0)
@@ -76,7 +81,7 @@
                                         }
 
                                         <!-- Botón de detalles -->
-                                        <a class="btn btn-purple mt-1" href="@($"ProductoDetalles/{product.Id}")">Ver Detalles</a>
+                                        <a class="btn btn-purple" href="@($"ProductoDetalles/{product.Id}")">Ver Detalles</a>
                                     </div>
                                 </div>
                             </div>
@@ -112,9 +117,7 @@ else
         object-position: center; /* Centra la imagen en el contenedor */
     }
 
-    .btn-purple {
-        color: #fff;
-        background-color: #8901CF;
-        border-color: #8901CF;
+    .light-tag {
+        background-color: rgb(170,222,239);
     }
 </style>

@@ -6,12 +6,12 @@
 
 @inject IProductService _productService;
 @inject IAuctionService _auctionService;
-
+@* 
 <html>
 <head>
     <title>Subasta Maestra</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+</head> *@
 
 <body>
     <!-- Título de la subasta y botón de publicar producto -->
@@ -43,7 +43,11 @@
                 <div class="row">
                     @foreach (var product in products)
                     {
-                        <div class="col-sm-6 col-md-4 mb-4">
+                        <div class="col-sm-6 col-md-4 mb-4 position-relative">
+                            @if (product.CurrentState == ProductState.Sold)
+                            {
+                                <div class="sold-banner">Vendido</div>
+                            }
                             <div class="card h-100 shadow-sm">
                                 <img src="@product.ImgUrl" alt="@product.Name" class="card-img-top">
                                 <div class="card-body">
@@ -77,7 +81,7 @@
     </div>
 </body>
 
-</html>
+@* </html> *@
 
 
 
