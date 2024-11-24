@@ -40,7 +40,7 @@
                         <p class="card-text"><strong>Modo de entrega:</strong> @Enum.GetName(typeof(DeliveryModes), Product.DeliveryCondition)</p>
 
 
-                        @if (Product.CurrentState.ToString() == "Active" )
+                        @if (Product.CurrentState.ToString() == "Active" && Product.Auction.CurrentState== AuctionState.Active )
                         {
                             <AuthorizeView>
                                 <Authorized>
@@ -54,7 +54,12 @@
                                         </div>
                                 </NotAuthorized>
                             </AuthorizeView>
-                            
+
+                        }
+                        else if(Product.Auction.CurrentState == AuctionState.Pending){
+                            <div class="alert alert-info mt-3" role="alert">
+                                Espera a que la subasta este activa para poder oferta.
+                            </div>
                         }
                         else
                         {

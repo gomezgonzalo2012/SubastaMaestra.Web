@@ -26,6 +26,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBidService, BidService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 builder.Services.AddSweetAlert2();
 builder.Services.AddMudServices();
 await builder.Build().RunAsync();

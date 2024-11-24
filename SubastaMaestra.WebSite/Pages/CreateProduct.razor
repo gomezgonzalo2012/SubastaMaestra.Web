@@ -1,10 +1,11 @@
 ﻿@page "/create-product/{auctionId}"
-@using Microsoft.AspNetCore.Authorization
 @using CurrieTechnologies.Razor.SweetAlert2
+@using Microsoft.AspNetCore.Authorization
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.Entities.Core;
 @attribute [Authorize];
+@using SubastaMaestra.WebSite.Components
 @using SubastaMaestra.WebSite.Services;
 @inject IProductService productService;
 @inject AuthenticationService authService;
@@ -27,13 +28,16 @@
     }
 
 }
+
 <div class="container d-flex justify-content-center">
-    <EditForm Model="@product" OnValidSubmit="SubmitProduct">
+    @* <EditForm Model="@product" OnValidSubmit="SubmitProduct"> *@
+
+    <EditForm Model="@product" OnValidSubmit="PreviewProduct">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <!-- Contenedor principal del formulario con ancho reducido -->
-        <div class="card shadow p-4" style="max-width: 500px;">
+        <div class="card shadow p-4" style="max-width: 700px;">
             <h3 class="text-center my-4">Crear Producto</h3>
 
             <div class="form-group mb-3">
@@ -103,8 +107,19 @@
             </div>
         </div>
     </EditForm>
-</div>
 
+    @if (showModal)
+    {
+        <div class="modal-backdrop show">
+            <div class="modal-content">
+                <!-- Contenido del modal -->
+                <ConfirmProductModal Product="@productPreview" OnClose="HandleModalClose" OnProductConfirmed="SubmitProduct" />
+            </div>
+        </div>
+    }
+
+
+</div>
 
 @code {
     private List<ProductCategory> categories = new List<ProductCategory>();  // Lista para almacenar las categorías
@@ -114,7 +129,6 @@
     public string auctionId { get; set; }
 
     private IBrowserFile selectedImage;
-
     private string? ErrorMessage;
 
 
@@ -165,12 +179,17 @@
             NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
 
         }
+
     }
 
 }
 
 @code {
     private ProductCreateDTO product = new ProductCreateDTO();
+    // modal
+    private ProductCreateDTO productPreview = new ProductCreateDTO();
+    private bool showModal = false;
+
     string Message = string.Empty;
     (bool succes, string message) response;
 
@@ -197,7 +216,9 @@
                     ImgUrl = imageBase64 // Enviar la imagen en base64
                 };
 
-            response = await productService.CreateProduct(productDto);
+            //response = await productService.CreateProduct(productDto);
+            response = await productService.CreateProduct(product);
+            
             Message = response.message;
         }
     }
@@ -212,6 +233,18 @@
             };
         }
 
-}
 
+    private void PreviewProduct()
+    {
+        productPreview = product;
+        showModal = true;
+    }
+
+    private void HandleModalClose(bool confirmed)
+    {
+        showModal = false;
+    }
+
+    
+}
 
