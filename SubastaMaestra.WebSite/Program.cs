@@ -12,12 +12,13 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>(); // Nuestro proveedor de estado de autenticación
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>(); // Nuestro proveedor de estado de autenticaciï¿½n
 
-builder.Services.AddScoped<AuthenticationService>(); // Servicio para manejar autenticación
+builder.Services.AddScoped<AuthenticationService>(); // Servicio para manejar autenticaciï¿½n
 
 builder.Services.AddAuthorizationCore();
 
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://subastamaestraapi.azurewebsites.net") });
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7093") });
 
 builder.Services.AddScoped<IAuctionService, AuctionService>();

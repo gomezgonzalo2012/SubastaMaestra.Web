@@ -1,20 +1,33 @@
-﻿@page "/create-product/{auctionId}";
-@using Microsoft.AspNetCore.Authorization;
+﻿@page "/create-product/{auctionId}"
+@using Microsoft.AspNetCore.Authorization
+@using CurrieTechnologies.Razor.SweetAlert2
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
 @attribute [Authorize];
 @using SubastaMaestra.WebSite.Services;
 @inject IProductService productService;
 @inject AuthenticationService authService;
+@inject IJSRuntime js
+@inject SweetAlertService Swal;
+@inject NavigationManager NavManager
 @inject IProductCategoryService productCategoryService;
 
 
 
 @if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-danger text-center">@Message</div>
-}
+    @if (response.succes)
+    {
+        Swal.FireAsync("Exito!", Message, "success");
+        <div class="alert alert-danger text-center">@Message</div>
+    }
+    else
+    {
+        Swal.FireAsync("Ops..!", Message, "error");
+        <div class="alert alert-danger text-center">@Message </div>
+    }
 
+}
 <div class="container d-flex justify-content-center">
     <EditForm Model="@product" OnValidSubmit="SubmitProduct">
         <DataAnnotationsValidator />
@@ -48,6 +61,10 @@
             <div class="form-group mb-3">
                 <label for="imgUrl" class="form-label">URL de imagen</label>
                 <InputFile OnChange="HandleFileSelected" class="form-control form-control-sm" />
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div class="text-danger">@ErrorMessage</div>
+                }
             </div>
 
             <div class="form-group mb-3">
@@ -98,11 +115,35 @@
 
     private IBrowserFile selectedImage;
 
+    private string? ErrorMessage;
+
+
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         // Guardar el archivo seleccionado en una variable para enviarlo más tarde
         selectedImage = e.File;
+        const long MaxFileSize = 512000; // 500 KB en bytes
+
+        // Obtener el archivo seleccionado
+
+        if (selectedImage != null)
+        {
+            if (selectedImage.Size > MaxFileSize)
+            {
+                ErrorMessage = $"El archivo excede el tamaño máximo permitido de {MaxFileSize / 1000} KB.";
+                selectedImage = null; // Opcional: deshacerse del archivo si no es válido
+            }
+            else
+            {
+                ErrorMessage = null; // Sin errores
+                                     // Si necesitas cargar el archivo, puedes procesarlo aquí
+                                     // Por ejemplo, leerlo como Stream o byte array:
+                using var stream = selectedImage.OpenReadStream(MaxFileSize);
+                // Procesar el archivo según lo necesites
+            }
+        }
     }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -113,12 +154,25 @@
         // Establece los valores en el modelo
         product.SellerId = int.Parse(userId); // Convertir el userId a entero si es necesario
         product.AuctionId = int.Parse(auctionId); // Establecer el AuctionId obtenido por parámetro
+        // Obtener el token del localStorage
+        var token = await authService.GetTokenAsync();
+
+        // Verificar si el token no existe o ha expirado
+        if (string.IsNullOrWhiteSpace(token) || authService.IsTokenExpired(token))
+        {
+            // Guardar la URL actual para redirigir después del login
+            var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+            NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+
+        }
     }
+
 }
 
 @code {
     private ProductCreateDTO product = new ProductCreateDTO();
     string Message = string.Empty;
+    (bool succes, string message) response;
 
     private async Task SubmitProduct()
     {
@@ -143,7 +197,7 @@
                     ImgUrl = imageBase64 // Enviar la imagen en base64
                 };
 
-            var response = await productService.CreateProduct(productDto);
+            response = await productService.CreateProduct(productDto);
             Message = response.message;
 
         }

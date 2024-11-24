@@ -1,18 +1,20 @@
-﻿@page "/counter"
+﻿@page "/register";
+@using SubastaMaestra.Models.DTOs.User
+@inject HttpClient _httpclient;
 
-<PageTitle>Counter</PageTitle>
+<h1>Registrar usuario</h1>
 
-<h1>Counter</h1>
+<input placeholder="Nombre" @bind=user.Name />
+<input placeholder="Email" @bind=user.Email />
+<input placeholder="Contraseña" @bind=user.Password />
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
+    UserCreateDTO user = new UserCreateDTO();
+    string mensaje = "";
+    async Task Registrar()
     {
-        currentCount++;
+        var response = await _httpclient.PostAsJsonAsync("api/User/Register", user);
+        mensaje = await response.Content.ReadAsStringAsync();
     }
 }

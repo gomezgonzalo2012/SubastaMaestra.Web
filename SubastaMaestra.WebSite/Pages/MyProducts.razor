@@ -1,0 +1,120 @@
+﻿@page "/misProductos"
+
+<h3>Mis Products</h3>
+
+@using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.WebSite.Services;
+
+@inject IUserService _userService;
+@inject AuthenticationService _authService;
+@code {
+    public string userId { get; set; }
+    public List<ProductDTO>? products { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        userId = await _authService.GetUserId();
+        int user_id = int.Parse(userId);
+        products = await _userService.GetMyProducts(user_id);
+    }
+}
+
+@if (products != null)
+{
+    <div class="container">
+
+        <div class="row">
+            @if (products?.Count > 0)
+            {
+                @foreach (var product in products)
+                {
+                    <div class="col-md-12 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="row g-0">
+                                <!-- Imagen del producto -->
+                                <div class="col-md-4">
+                                    <div class="product-image-wrapper">
+                                        <img src="@product.ImgUrl" class="img-fluid rounded-start product-image" alt="Imagen de Producto">
+                                    </div>
+                                </div>
+
+
+                                <!-- Contenido del producto -->
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <!-- Título y estado de la subasta -->
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-calendar-event"></i> Subasta: @product.Auction?.Title
+                                            </span>
+                                            <span class="text-muted">
+                                                <i class="bi bi-star"></i>
+                                            </span>
+                                        </div>
+
+                                        <!-- Nombre del producto -->
+                                        <h5 class="card-title">@product.Name</h5>
+
+                                        <!-- Condición y Estado actual -->
+                                        <p class="card-text ">
+                                            Condición: @product.Condition<br />
+                                            Estado actual: @product.CurrentState<br />
+                                            <span><i class="bi bi-hammer"></i> Ofertas: @product.NumberOfOffers</span>
+                                        </p>
+
+                                        <hr />
+
+                                        <!-- Precio inicial y precio final (si está disponible) -->
+                                        <p class="fw-bold">Precio Inicial</p>
+                                        <h4 class="text-primary">AR$ @product.InitialPrice.ToString("N2")</h4>
+
+                                        @if (product.FinalPrice.HasValue && product.FinalPrice.Value > 0)
+                                        {
+                                            <p class="card-text fw-bold mt-2">Precio Final</p>
+                                            <h4 class="text-success">AR$ @product.FinalPrice.Value.ToString("N2")</h4>
+                                        }
+
+                                        <!-- Botón de detalles -->
+                                        <a class="btn btn-purple mt-1" href="@($"ProductoDetalles/{product.Id}")">Ver Detalles</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No hay productos disponibles.</p>
+            }
+
+
+        </div>
+    </div>
+}
+else
+{
+    <p>Cargando productos...</p>
+}
+<style>
+    .product-image-wrapper {
+        width: 100%;       /* Ocupa el ancho total del contenedor */
+        height: 200px;     /* Define una altura fija para todas las imágenes */
+        overflow: hidden;  /* Oculta el desbordamiento */
+        border-radius: 10px; /* Opcional: bordes redondeados */
+    }
+
+    .product-image {
+        width: 100%;            /* Ancho completo del contenedor */
+        height: 100%;           /* Altura completa del contenedor */
+        object-fit: cover;      /* Ajusta la imagen sin distorsión */
+        object-position: center; /* Centra la imagen en el contenedor */
+    }
+
+    .btn-purple {
+        color: #fff;
+        background-color: #8901CF;
+        border-color: #8901CF;
+    }
+</style>

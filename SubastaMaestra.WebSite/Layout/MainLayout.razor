@@ -1,4 +1,4 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @inject AuthenticationService AuthService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -18,12 +18,13 @@
         @if (!IsAuthPage)
         {
             <div class="top-row px-4 d-flex justify-content-between align-items-center shadow-sm bg-light">
-                <h2 class="m-0">Subasta Maestra</h2>
+                <h2 class="m-0"></h2>
 
                 <AuthorizeView>
                     <Authorized>
                         <div class="user-info d-flex align-items-center gap-2">
-                            <button class="btn btn-outline-info btn-sm" @onclick="OpenNotificationModal">Notificaciones</button>
+
+                            <button class="btn btn-outline-info btn-sm" @onclick="OpenNotificationModal"><i class="bi bi-bell"></i> </button>
                             <span class="fw-bold">@userName</span>
                             <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Cerrar sesión</button>
                         </div>
