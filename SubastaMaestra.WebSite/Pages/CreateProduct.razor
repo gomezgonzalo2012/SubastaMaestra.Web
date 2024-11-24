@@ -4,6 +4,7 @@
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
 @attribute [Authorize];
+@using SubastaMaestra.WebSite.Components
 @using SubastaMaestra.WebSite.Services;
 @inject IProductService productService;
 @inject AuthenticationService authService;
@@ -28,7 +29,9 @@
 }
 
 <div class="container d-flex justify-content-center">
-    <EditForm Model="@product" OnValidSubmit="SubmitProduct">
+    @* <EditForm Model="@product" OnValidSubmit="SubmitProduct"> *@
+
+    <EditForm Model="@product" OnValidSubmit="PreviewProduct">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
@@ -95,8 +98,19 @@
             </div>
         </div>
     </EditForm>
-</div>
 
+    @if (showModal)
+    {
+        <div class="modal-backdrop show">
+            <div class="modal-content">
+                <!-- Contenido del modal -->
+                <ConfirmProductModal Product="@productPreview" OnClose="HandleModalClose" OnProductConfirmed="SubmitProduct" />
+            </div>
+        </div>
+    }
+
+
+</div>
 
 @code {
     private string userId;
@@ -160,6 +174,10 @@
 
 @code {
     private ProductCreateDTO product = new ProductCreateDTO();
+    // modal
+    private ProductCreateDTO productPreview = new ProductCreateDTO();
+    private bool showModal = false;
+
     string Message = string.Empty;
     (bool succes, string message) response;
 
@@ -186,7 +204,9 @@
                     ImgUrl = imageBase64 // Enviar la imagen en base64
                 };
 
-            response = await productService.CreateProduct(productDto);
+            //response = await productService.CreateProduct(productDto);
+            response = await productService.CreateProduct(product);
+            
             Message = response.message;
 
         }
@@ -194,7 +214,17 @@
     }
 
 
+    private void PreviewProduct()
+    {
+        productPreview = product;
+        showModal = true;
+    }
 
+    private void HandleModalClose(bool confirmed)
+    {
+        showModal = false;
+    }
+
+    
 }
-
 

@@ -39,7 +39,7 @@
                         <p class="card-text"><strong>Ofertas:</strong> @Product.NumberOfOffers</p>
                         <p class="card-text"><strong>Modo de entrega:</strong> @(Product.DeliveryCondition == 0 ? "Pick-up" : "Delivery")</p>
 
-                        @if (Product.CurrentState.ToString() == "Active" )
+                        @if (Product.CurrentState.ToString() == "Active" && Product.Auction.CurrentState== AuctionState.Active )
                         {
                             <AuthorizeView>
                                 <Authorized>
@@ -53,7 +53,12 @@
                                         </div>
                                 </NotAuthorized>
                             </AuthorizeView>
-                            
+
+                        }
+                        else if(Product.Auction.CurrentState == AuctionState.Pending){
+                            <div class="alert alert-info mt-3" role="alert">
+                                Espera a que la subasta este activa para poder oferta.
+                            </div>
                         }
                         else
                         {

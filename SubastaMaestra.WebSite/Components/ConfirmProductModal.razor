@@ -1,0 +1,80 @@
+﻿@using SubastaMaestra.Models.DTOs.Product;
+
+<div class="modal show" tabindex="-1" style="display: block;" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">¿Confirmar Producto?</h5>
+                <button type="button" class="close" @onclick="(() => OnClose.InvokeAsync(false))">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Nombre:</dt>
+                    <dd class="col-sm-8">@Product.Name</dd>
+
+                    <dt class="col-sm-4">Estado:</dt>
+                    <dd class="col-sm-8">@Product.Condition</dd>
+
+                    <dt class="col-sm-4">Precio Inicial:</dt>
+                    <dd class="col-sm-8">$@Product.InitialPrice</dd>
+
+                    <dt class="col-sm-4">Categoría:</dt>
+                    <dd class="col-sm-8">@Product.CategoryId</dd>
+
+                    <dt class="col-sm-4">Condición de Entrega:</dt>
+                    <dd class="col-sm-8">@Product.DeliveryCondition</dd>
+
+                    <dt class="col-sm-4">Descripción:</dt>
+                    <dd class="col-sm-8">@Product.Description</dd>
+
+                    @if (!string.IsNullOrEmpty(Product.ImgUrl))
+                    {
+                        <dt class="col-sm-4">Imagen:</dt>
+                        <dd class="col-sm-8">
+                            <img src="data:image/png;base64,@Product.ImgUrl" alt="Imagen del producto" class="img-fluid" />
+                        </dd>
+                    }
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="(() => OnClose.InvokeAsync(false))">Cancelar</button>
+                <button type="button" class="btn btn-primary" @onclick="ConfirmProduct">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public ProductCreateDTO Product { get; set; } = new ProductCreateDTO();
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public EventCallback OnProductConfirmed { get; set; }
+
+    private async Task ConfirmProduct()
+    {
+        await OnProductConfirmed.InvokeAsync();
+        await OnClose.InvokeAsync(true); // sddddddddddd
+    }
+}
+<style>
+    /* Fondo opaco del modal */
+    .modal-backdrop {
+     /*    background-color: rgba(0, 0, 0, 1) !important; /* Negro sólido */ 
+        opacity: 0.9 !important;
+    }
+
+
+    /* Contenido del modal sin transparencia */
+    .modal-content {
+        background-color: #ffffff !important; /* Blanco sólido */
+        opacity: 1 !important;
+    }
+
+    /* Asegurarse de que el modal en estado "show" sea opaco */
+    .modal.show {
+        opacity: 1 !important;
+    }
+
+    
+</style>
