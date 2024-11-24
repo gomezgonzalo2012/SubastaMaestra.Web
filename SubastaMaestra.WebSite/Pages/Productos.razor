@@ -62,7 +62,7 @@
                                     <!-- Detalles del producto -->
                                     <p class="mb-0">
                                         <span class="text-muted">Estado: </span>
-                                        <span class="fw-bold">@product.Condition</span>
+                                        <span class="fw-bold">@(product.Condition == 0 ? "Nuevo" : "Usado")</span>
                                     </p>
                                     <p class="mb-0">
                                         <span class="text-muted">Precio Base: </span>
