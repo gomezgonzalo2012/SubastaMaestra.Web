@@ -1,4 +1,4 @@
-﻿using SubastaMaestra.Models.DTOs.Product;
+﻿using SubastaMaestra.Entities.Core;
 using SubastaMaestra.Models.Utils;
 using System.Net.Http.Json;
 
@@ -14,15 +14,15 @@ namespace SubastaMaestra.WebSite.Services
             _httpClient = httpClient;
         }
 
-        public async Task<List<CategoryDTO>> GetCategoriesAsync()
+        public async Task<List<ProductCategory>> GetCategoriesAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<OperationResult<List<CategoryDTO>>>("/api/Category/list");
+            var response = await _httpClient.GetFromJsonAsync<OperationResult<List<ProductCategory>>>("/api/Category/list");
             if (response?.Value != null)
             {
                 return response.Value;
             }
 
-            return new List<CategoryDTO>(); // Retornar lista vacía si no hay datos
+            return new List<ProductCategory>(); // Retornar lista vacía si no hay datos
         }
 
     }

@@ -2,8 +2,10 @@
 
 <h3>Mis Ofertas</h3>
 
+@using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.Models.DTOs.Bid;
 @using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Core;
 
 @inject IUserService _userService;
 @inject AuthenticationService _authService;
@@ -55,8 +57,9 @@
                                             Precio inicial: <span class="fw-bold">@bid.Product.InitialPrice.ToString("N2")</span><br />
                                             Tu oferta: <span class="text-success fw-bold">@bid.Price.ToString("N2")</span><br />
                                             Método de pago: @bid.PaymentMethods<br />
-                                            Estado del producto: @bid.Product.CurrentState
+                                            Estado del producto: @GetProductStateLabel(bid.Product.CurrentState)
                                         </p>
+
 
                                         <!-- Botón de detalles -->
                                         <a class="btn btn-purple btn-sm mt-1" href="@($"ProductoDetalles/{bid.ProductId}")">Ver Detalles</a>
@@ -101,3 +104,17 @@ else
         border-color: #8901CF;
     }
 </style>
+
+@code {
+    private string GetProductStateLabel(ProductState state)
+    {
+        return state switch
+        {
+            ProductState.Pending => "Pendiente",
+            ProductState.Active => "Activo",
+            ProductState.Disabled => "Deshabilitado",
+            ProductState.Sold => "Vendido",
+            _ => "Desconocido" // Para valores que no estén en el enum
+        };
+    }
+}

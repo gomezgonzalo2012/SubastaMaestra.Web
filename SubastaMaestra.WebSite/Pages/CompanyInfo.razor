@@ -1,0 +1,51 @@
+﻿@page "/Empresa"
+
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        .custom-img-height {
+    max-height: 300px; /* Ajusta la altura a lo que necesites */
+    object-fit: cover; /* Recorta la imagen si es necesario */
+    width: 100%; /* Mantiene la imagen adaptada al contenedor */
+}
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+        <div class="card shadow p-4">
+            <div class="row">
+                <!-- Imagen de la empresa -->
+                <div class="jumbotron bg-light text-center mb-1">
+                    <div class="container">
+                        <div class="col-xs-12">
+                            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+
+                                        <img src="puja_maestra3.png" class="d-block w-100 custom-img-height" alt="Subasta">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Información de la empresa -->
+                <div class="col-md-8">
+                    <h2>Nombre</h2>
+                    <p>Descripción</p>
+                    <p><strong>Dirección:</strong> </p>
+                    <p><strong>Correo:</strong> <a href="#"></a></p>
+                    <p><strong>Teléfono:</strong> <a href="#"></a></p>
+                    <div>
+                        <strong>Redes Sociales:</strong>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+</body>
+</html>

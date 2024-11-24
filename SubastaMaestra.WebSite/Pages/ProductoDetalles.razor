@@ -27,7 +27,7 @@
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
-                        <h3 class="card-title">@Product.Name</h3>
+                        <h3 class="card-title"><strong>@Product.Name</strong></h3>
                         <p class="card-text"><strong>Condición:</strong> @(Product.Condition == 0 ? "Nuevo" : "Usado")</p>
                         <p class="card-text"><strong>Precio Base:</strong> $@Product.InitialPrice</p>
                         @if (Product.FinalPrice > 0)
@@ -37,7 +37,8 @@
                         <p class="card-text"><strong>Descripción:</strong> @Product.Description</p>
                         
                         <p class="card-text"><strong>Ofertas:</strong> @Product.NumberOfOffers</p>
-                        <p class="card-text"><strong>Modo de entrega:</strong> @(Product.DeliveryCondition == 0 ? "Pick-up" : "Delivery")</p>
+                        <p class="card-text"><strong>Modo de entrega:</strong> @Enum.GetName(typeof(DeliveryModes), Product.DeliveryCondition)</p>
+
 
                         @if (Product.CurrentState.ToString() == "Active" )
                         {

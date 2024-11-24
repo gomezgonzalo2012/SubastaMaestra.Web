@@ -47,10 +47,9 @@
                             <div class="card h-100 shadow-sm">
                                 <img src="@product.ImgUrl" alt="@product.Name" class="card-img-top">
                                 <div class="card-body">
-                                    <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text">Estado: @product.Condition</p>
+                                    <h5 class="card-title"><strong>@product.Name</strong></h5>
+                                    <p class="card-text">Condición: @(product.Condition == 0 ? "Nuevo" : "Usado")</p>
                                     <p class="card-text">Precio Base: $@product.InitialPrice</p>
-
                                     @if (auctionState == AuctionState.Active)
                                     {
                                         <p>Ofertas: @product.NumberOfOffers</p>
@@ -113,4 +112,6 @@
             Console.WriteLine("Error: " + ex.Message);
         }
     }
+    
+
 }

@@ -3,6 +3,7 @@
 @using CurrieTechnologies.Razor.SweetAlert2
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
+@using SubastaMaestra.Entities.Core;
 @attribute [Authorize];
 @using SubastaMaestra.WebSite.Services;
 @inject IProductService productService;
@@ -19,12 +20,10 @@
     @if (response.succes)
     {
         Swal.FireAsync("Exito!", Message, "success");
-        <div class="alert alert-danger text-center">@Message</div>
     }
     else
     {
         Swal.FireAsync("Ops..!", Message, "error");
-        <div class="alert alert-danger text-center">@Message </div>
     }
 
 }
@@ -48,9 +47,10 @@
                     <option value="">Selecciona una opción</option>
                     @foreach (var condition in Enum.GetValues(typeof(ProductConditions)))
                     {
-                        <option value="@condition">@condition</option>
+                        <option value="@condition">@GetConditionLabel((ProductConditions)condition)</option>
                     }
                 </InputSelect>
+
             </div>
 
             <div class="form-group mb-3">
@@ -107,7 +107,7 @@
 
 
 @code {
-    private List<CategoryDTO> categories = new List<CategoryDTO>();  // Lista para almacenar las categorías
+    private List<ProductCategory> categories = new List<ProductCategory>();  // Lista para almacenar las categorías
     private string userId;
 
     [Parameter]
@@ -199,12 +199,18 @@
 
             response = await productService.CreateProduct(productDto);
             Message = response.message;
-
         }
-
     }
-
-
+    
+        private string GetConditionLabel(ProductConditions condition)
+        {
+            return condition switch
+            {
+                ProductConditions.New => "Nuevo",
+                ProductConditions.Used => "Usado",
+                _ => "Desconocido" // Para valores que no estén en el enum
+            };
+        }
 
 }
 
