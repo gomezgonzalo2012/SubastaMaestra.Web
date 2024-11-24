@@ -23,17 +23,17 @@ namespace SubastaMaestra.WebSite.Services
             bool succes = false;
             if (response.IsSuccessStatusCode)
             {
-                message = "Exitosamente cargado";
+                message = " Producto exitosamente cargado";
                 succes = true;
             }
-            // Si la respuesta no fue exitosa, leer el contenido como string
-            var errorContent = await response.Content.ReadAsStringAsync();
+            //// Si la respuesta no fue exitosa, leer el contenido como string
+            //var errorContent = await response.Content.ReadAsStringAsync();
 
-            // Si el contenido no es nulo o vacío, usarlo como mensaje de error
-            if (!string.IsNullOrEmpty(errorContent))
-            {
-                message = $"Producto agregado correctamente!";
-            }
+            //// Si el contenido no es nulo o vacío, usarlo como mensaje de error
+            //if (!string.IsNullOrEmpty(errorContent))
+            //{
+            //    message = $"Producto agregado correctamente!";
+            //}
             else
             {
                 // Si no hay contenido, usar un mensaje de error genérico

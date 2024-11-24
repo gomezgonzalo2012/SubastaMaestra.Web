@@ -6,12 +6,12 @@
 
 @inject IProductService _productService;
 @inject IAuctionService _auctionService;
-
+@* 
 <html>
 <head>
     <title>Subasta Maestra</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+</head> *@
 
 <body>
     <!-- Título de la subasta y botón de publicar producto -->
@@ -43,41 +43,158 @@
                 <div class="row">
                     @foreach (var product in products)
                     {
-                        <div class="col-sm-6 col-md-4 mb-4">
+                        <div class="col-sm-6 col-md-4 mb-4 position-relative">
+                            @if (product.CurrentState == ProductState.Sold)
+                            {
+                                <div class="sold-banner">Vendido</div>
+                            }
                             <div class="card h-100 shadow-sm">
-                                <img src="@product.ImgUrl" alt="@product.Name" class="card-img-top">
-                                <div class="card-body">
-                                    <h5 class="card-title">@product.Name</h5>
-                                    <p class="card-text">Estado: @product.Condition</p>
-                                    <p class="card-text">Precio Base: $@product.InitialPrice</p>
+                                <!-- Imagen del producto -->
+                                <img src="@(string.IsNullOrEmpty(product.ImgUrl) ? "/images/imagen_articulo_por_defecto.jpg" : product.ImgUrl)"
+                                     alt="@product.Name"
+                                     class="card-img-top h-100  rounded"
+                                     onerror="this.src='/images/imagen_articulo_por_defecto.jpg';">
 
-                                    @if (auctionState == AuctionState.Active)
+                                <div class="card-body">
+                                    <!-- Título destacado -->
+                                    <h5 class="card-title text-dark fw-bold mb-2">@product.Name</h5>
+
+                                    <!-- Detalles del producto -->
+                                    <p class="mb-0">
+                                        <span class="text-muted">Estado: </span>
+                                        <span class="fw-bold">@product.Condition</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="text-muted">Precio Base: </span>
+                                        <span class="fw-bold">$@product.InitialPrice.ToString("N2")</span>
+                                    </p>
+                                   @*  <!-- Nombre del producto -->
+                                    <h5 class="card-title text-primary">@product.Name</h5>
+
+                                    <!-- Condición del producto -->
+                                    <p class="text-muted">Condición: <span class="fw-bold">@product.Condition</span></p>
+
+                                    <!-- Precio base -->
+                                    <p class="text-muted">Precio Base: <span class="fw-bold">$@product.InitialPrice.ToString("N2")</span></p> *@
+
+                                    <!-- Información según estado -->
+                                    @switch (product.CurrentState)
                                     {
-                                        <p>Ofertas: @product.NumberOfOffers</p>
-                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles/Ofertar</a>
-                                    }
-                                    else if (auctionState == AuctionState.Pending)
-                                    {
-                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles</a>
-                                    }
-                                    else if (auctionState == AuctionState.Closed)
-                                    {
-                                        <p>Ofertas: @product.NumberOfOffers</p>
-                                        <p>Precio Final: $@product.FinalPrice</p>
-                                        <p>Ganador: @product.BuyerName</p>
-                                        <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary">Ver Detalles</a>
+                                        case ProductState.Pending:
+                                            <p>Estado: <span class ="text-warning">Pendiente </span> </p>
+                                            <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+
+                                            break;
+
+                                        case ProductState.Active:
+                                            <p class="mb-0">
+                                                <span>Estado: <span class="text-success">Activo </span> </span><br />
+                                                <span>Número de Ofertas: <span class="fw-bold">@product.NumberOfOffers</span></span>
+                                            </p>
+                                            @if (auctionState == AuctionState.Active)
+                                            {
+                                                <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles/Ofertar</a>
+                                            }else{
+                                                <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+                                            }
+
+                                            break;
+
+                                        case ProductState.Disabled:
+                                            <p>Estado: <span class="text-danger">Deshabilitado </span> </p>
+                                            break;
+
+                                        case ProductState.Sold:
+                                           
+                                            <p class="mb-0">
+                                                <span class="text-muted">Ofertas: </span>
+                                                <span class="fw-bold">@product.NumberOfOffers</span>
+                                            </p>
+                                            <p class="mb-0 text-success">
+                                                <span class="text-muted">Precio Final: </span>
+                                                <span class="fw-bold">$@product.FinalPrice?.ToString("N2")</span>
+                                            </p>
+                                            <p class="mb-0 text-success">
+                                                <span class="text-muted">Ganador: </span>
+                                                <span class="fw-bold">@product.BuyerName</span>
+                                            </p>
+                                            <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+                                            break;
                                     }
                                 </div>
                             </div>
                         </div>
                     }
+
+                   @*  @foreach (var product in products)
+                    {
+                        <div class="col-sm-6 col-md-4 mb-4 position-relative">
+                            @if (product.CurrentState == ProductState.Sold)
+                            {
+                                <div class="sold-banner">Vendido</div>
+                            }
+                            <div class="card h-100 shadow-sm border-0">
+                                <!-- Imagen del producto -->
+                                <img src="@(string.IsNullOrEmpty(product.ImgUrl) ? "/images/imagen_articulo_por_defecto.jpg" : product.ImgUrl)"
+                                     alt="@product.Name"
+                                     class="card-img-top h-100  rounded"
+                                     onerror="this.src='/images/imagen_articulo_por_defecto.jpg';">
+
+
+                                <div class="card-body">
+                                    <!-- Título destacado -->
+                                    <h5 class="card-title text-dark fw-bold mb-2">@product.Name</h5>
+
+                                    <!-- Detalles del producto -->
+                                    <p class="mb-0">
+                                        <span class="text-muted">Estado: </span>
+                                        <span class="fw-bold">@product.Condition</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="text-muted">Precio Base: </span>
+                                        <span class="fw-bold">$@product.InitialPrice</span>
+                                    </p>
+
+                                    @if (auctionState == AuctionState.Active)
+                                    {
+                                        <p class="mb-0">
+                                            <span class="text-muted">Ofertas: </span>
+                                            <span class="fw-bold">@product.NumberOfOffers</span>
+                                        </p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-primary btn-sm">Ver Detalles/Ofertar</a>
+                                    }
+                                    else if (auctionState == AuctionState.Pending)
+                                    {
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-secondary btn-sm">Ver Detalles</a>
+                                    }
+                                    else if (auctionState == AuctionState.Closed)
+                                    {
+                                        <p class="mb-0">
+                                            <span class="text-muted">Ofertas: </span>
+                                            <span class="fw-bold">@product.NumberOfOffers</span>
+                                        </p>
+                                        <p class="mb-0 text-success">
+                                            <span class="text-muted">Precio Final: </span>
+                                            <span class="fw-bold">$@product.FinalPrice</span>
+                                        </p>
+                                        <p class="mb-0 text-success">
+                                            <span class="text-muted">Ganador: </span>
+                                            <span class="fw-bold">@product.BuyerName</span>
+                                        </p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-secondary btn-sm">Ver Detalles</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    } *@
+
                 </div>
             </div>
         }
     </div>
 </body>
 
-</html>
+@* </html> *@
 
 
 

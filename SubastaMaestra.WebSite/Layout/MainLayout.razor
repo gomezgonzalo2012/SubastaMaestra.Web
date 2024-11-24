@@ -5,6 +5,7 @@
 @using System.Security.Claims
 @using SubastaMaestra.WebSite.wwwroot.Modals
 @using Microsoft.AspNetCore.Components.Authorization
+@inject INotificationService NotificationService;
 
 <div class="page">
     @if (!IsAuthPage)
@@ -24,7 +25,7 @@
                     <Authorized>
                         <div class="user-info d-flex align-items-center gap-2">
 
-                            <button class="btn btn-outline-info btn-sm" @onclick="OpenNotificationModal"><i class="bi bi-bell"></i> </button>
+                            <button class="btn btn-sm" @onclick="OpenNotificationModal"><i class="bi bi-bell-fill"></i>@notifCount </button>
                             <span class="fw-bold">@userName</span>
                             <button class="btn btn-outline-danger btn-sm" @onclick="HandleLogout">Cerrar sesión</button>
                         </div>
@@ -54,18 +55,27 @@
 </div>
 @if (isNotificationModalOpen)
 {
-    <NotificationModal OnClose="CloseNotificationModal" />
+    <NotificationModal OnClose="CloseNotificationModal" OnNotificationsUpdated="HandleNotificationsUpdated" />
 }
 @code {
     private string userName;
     private bool IsAuthPage => Navigation.Uri.Contains("login") || Navigation.Uri.Contains("registro");
     private bool isNotificationModalOpen;
+    private int notifCount = 0;
 
     private void OpenNotificationModal()
     {
         isNotificationModalOpen = true;
     }
-
+    private async Task CountNotifications()
+    {
+        var userId = await AuthService.GetUserId();
+        notifCount = await NotificationService.CountNotifications(userId);
+    }
+    private async Task HandleNotificationsUpdated()
+    {
+        await CountNotifications(); // Actualizamos el contador
+    }
     private void CloseNotificationModal()
     {
         isNotificationModalOpen = false;
@@ -74,6 +84,7 @@
     {
         AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
         await UpdateUserNameAsync();
+        
     }
 
     private async Task UpdateUserNameAsync()
@@ -84,6 +95,7 @@
         if (user.Identity.IsAuthenticated)
         {
             userName = user.FindFirst(ClaimTypes.Name)?.Value; // Obtener el nombre del usuario desde los claims
+            await CountNotifications(); // cuenta cantidad de notifs
         }
         else
         {
