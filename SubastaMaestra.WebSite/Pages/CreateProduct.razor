@@ -168,7 +168,7 @@
         // Establece los valores en el modelo
         product.SellerId = int.Parse(userId); // Convertir el userId a entero si es necesario
         product.AuctionId = int.Parse(auctionId); // Establecer el AuctionId obtenido por parámetro
-        // Obtener el token del localStorage
+                                                  // Obtener el token del localStorage
         var token = await authService.GetTokenAsync();
 
         // Verificar si el token no existe o ha expirado
@@ -216,22 +216,22 @@
                     ImgUrl = imageBase64 // Enviar la imagen en base64
                 };
 
-            //response = await productService.CreateProduct(productDto);
-            response = await productService.CreateProduct(product);
-            
+            response = await productService.CreateProduct(productDto);
+            // response = await productService.CreateProduct(product);
+
             Message = response.message;
         }
     }
-    
-        private string GetConditionLabel(ProductConditions condition)
+
+    private string GetConditionLabel(ProductConditions condition)
+    {
+        return condition switch
         {
-            return condition switch
-            {
-                ProductConditions.New => "Nuevo",
-                ProductConditions.Used => "Usado",
-                _ => "Desconocido" // Para valores que no estén en el enum
-            };
-        }
+            ProductConditions.New => "Nuevo",
+            ProductConditions.Used => "Usado",
+            _ => "Desconocido" // Para valores que no estén en el enum
+        };
+    }
 
 
     private void PreviewProduct()
@@ -245,6 +245,5 @@
         showModal = false;
     }
 
-    
-}
 
+}

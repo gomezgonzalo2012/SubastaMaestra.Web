@@ -3,6 +3,7 @@
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.WebSite.Services;
 @using SubastaMaestra.Entities.Enums;
+@inject NavigationManager NavManager;
 
 @inject IProductService _productService;
 @inject IAuctionService _auctionService;
@@ -20,6 +21,12 @@
             <div class="col-md-8">
                 <h1 class="display-4">@auctionTitle</h1>
                 <p class="lead">Cierre: @finishDate.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="col-md-4 text-end">
+                @if (auctionState == AuctionState.Pending)
+                {
+                    <a href="create-product/@auctionId" class="btn btn-primary">Publicar Producto</a>
+                }
             </div>
         </div>
 
@@ -226,5 +233,12 @@
         {
             Console.WriteLine("Error: " + ex.Message);
         }
+    }
+    private void ToLogin()
+    {
+        // Guardar la URL actual para redirigir después del login
+        var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+        NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+
     }
 }
