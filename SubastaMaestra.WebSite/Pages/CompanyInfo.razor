@@ -6,46 +6,179 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        .custom-img-height {
-    max-height: 300px; /* Ajusta la altura a lo que necesites */
-    object-fit: cover; /* Recorta la imagen si es necesario */
-    width: 100%; /* Mantiene la imagen adaptada al contenedor */
-}
+        .container {
+            max-width: 900px;
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .company-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .company-info {
+            padding: 20px;
+        }
+
+            .company-info h1 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+                color: #343a40;
+            }
+
+            .company-info p {
+                margin: 10px 0;
+                font-size: 1rem;
+                line-height: 1.5;
+                color: #6c757d;
+            }
+
+        .contact-info p {
+            margin: 5px 0;
+            font-size: 1rem;
+            color: #495057;
+        }
+
+        .social-links a {
+            margin: 0 5px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+
+            .social-links a:hover {
+                text-decoration: underline;
+            }
+
+        .creators {
+            margin-top: 30px;
+        }
+
+        .creator-cards {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .creator-card {
+            background: #f1f3f5;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+            max-width: 30%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+            .creator-card img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 50%;
+                margin-bottom: 10px;
+            }
+
+            .creator-card h3 {
+                font-size: 1.25rem;
+                color: #343a40;
+            }
+
+            .creator-card p {
+                font-size: 1rem;
+                color: #6c757d;
+                margin: 5px 0;
+            }
     </style>
 </head>
 <body>
-<div class="container mt-4">
-        <div class="card shadow p-4">
-            <div class="row">
-                <!-- Imagen de la empresa -->
-                <div class="jumbotron bg-light text-center mb-1">
-                    <div class="container">
-                        <div class="col-xs-12">
-                            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-                                <div class="carousel-inner">
-                                    <div class="carousel-item active">
+    <div class="container">
+        <!-- Imagen de la empresa -->
+        <img src="puja_maestra3.png" class="d-block w-100 custom-img-height" alt="Subasta" />
 
-                                        <img src="puja_maestra3.png" class="d-block w-100 custom-img-height" alt="Subasta">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Información de la empresa -->
+        <div class="company-info text-center my-5">
+            <h2>Sobre Nosotros</h2>
+            <p>
+                Somos una empresa dedicada a brindar servicios de calidad a nuestros clientes. Nos destacamos por nuestro compromiso,
+                profesionalismo y atención personalizada. En Subasta Maestra, te ofrecemos un espacio seguro y dinámico para participar
+                en subastas emocionantes de productos exclusivos.
+            </p>
+            <p>
+                Nuestra misión es proporcionar un entorno confiable, transparente e interactivo donde tanto compradores como vendedores
+                puedan conectar y negociar productos de manera efectiva.
+            </p>
+        </div>
+        <div class="company-info text-center my-5">
+            <h2>Misión</h2>
+            <p>
+                Nuestra misión es brindar una plataforma accesible, transparente y segura, donde compradores y vendedores puedan conectar y negociar productos de manera justa y eficiente.
+            </p>
+        </div>
+        <div class="company-info my-5">
+            <h2>Ventajas de usar nuestra plataforma</h2>
+            <p>
+                <strong>Variedad de Productos:</strong> Encuentra todo, desde artículos de colección hasta productos de uso diario.
+            </p>
+            <p>
+                <strong>Subastas en Tiempo Real:</strong> Participa de manera interactiva en cada subasta con la posibilidad de hacer ofertas al instante.
+            </p>
+            <p>
+                <strong>Facilidad de Uso:</strong> Navega fácilmente entre las subastas y encuentra lo que necesitas sin complicaciones.
+            </p>
+            <p>
+                <strong>Asistencia al Cliente:</strong> Nuestro equipo de soporte está disponible para ayudarte con cualquier duda o inconveniente.
+            </p>
+        </div>
+
+        <!-- Información de contacto -->
+        <div class="contact-info text-center mb-5">
+            <h3>Información de Contacto</h3>
+            <p><strong>Dirección:</strong> España 831, Goya, Corrientes, Argentina</p>
+            <p><strong>Teléfono:</strong> <a href="https://api.whatsapp.com/send/?phone=3777572271&text&type=phone_number&app_absent=0">+54 9 3777-572271</a></p>
+            <p><strong>Email:</strong> <a href="mailto:SubastaMaestra@gmail.com">SubastaMaestra@gmail.com</a></p>
+        </div>
+
+        <!-- Creadores de la empresa -->
+        <div class="creators text-center my-5">
+            <h2>Creadores de la Empresa</h2>
+            <div class="creator-cards d-flex justify-content-center gap-4">
+                <!-- Creador 1 -->
+                <div class="creator-card card p-3" style="width: 18rem;">
+                    <img src="https://th.bing.com/th/id/OIP.EwG6x9w6RngqsKrPJYxULAHaHa?w=1200&h=1200&rs=1&pid=ImgDetMain" alt="Montedeoca Darío" class="card-img-top" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Montedeoca Darío</h5>
+                        <p><strong>Teléfono:</strong> <a href="https://api.whatsapp.com/send/?phone=3777572271&text&type=phone_number&app_absent=0">+54 9 3777-572271</a></p>
+                        <p><strong>Email:</strong> <a href="mailto:montedeocadarioo@gmail.com">montedeocadarioo@gmail.com</a></p>
                     </div>
                 </div>
-                <!-- Información de la empresa -->
-                <div class="col-md-8">
-                    <h2>Nombre</h2>
-                    <p>Descripción</p>
-                    <p><strong>Dirección:</strong> </p>
-                    <p><strong>Correo:</strong> <a href="#"></a></p>
-                    <p><strong>Teléfono:</strong> <a href="#"></a></p>
-                    <div>
-                        <strong>Redes Sociales:</strong>
-                        
+                <!-- Creador 2 -->
+                <div class="creator-card card p-3" style="width: 18rem;">
+                    <img src="https://www.seekpng.com/png/full/224-2245327_free-teletubbies-sun-png-soku.png" alt="Gomez Gonzalo" class="card-img-top" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Gonza-kun</h5>
+                        <p><strong>Teléfono:</strong><a href="https://api.whatsapp.com/send/?phone=3777555169&text&type=phone_number&app_absent=0">+54 9 3777-555169</a></p>
+                        <p><strong>Email:</strong> <a href="mailto:maria.lopez@empresa.com">maria.lopez@empresa.com</a></p>
+                    </div>
+                </div>
+                <!-- Creador 3 -->
+                <div class="creator-card card p-3" style="width: 18rem;">
+                    <img src="https://static.vecteezy.com/system/resources/previews/009/397/892/original/woman-face-expression-clipart-design-illustration-free-png.png" alt="Lourdes Rios" class="card-img-top" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Lourdes Rios</h5>
+                        <p><strong>Teléfono:</strong><a href="https://api.whatsapp.com/send/?phone=3777600222&text&type=phone_number&app_absent=0">+54 9 3777-555169</a></p>
+                        <p><strong>Email:</strong> <a href="mailto:carlos.garcia@empresa.com">carlos.garcia@empresa.com</a></p>
                     </div>
                 </div>
             </div>
         </div>
-</div>
+    </div>
 </body>
 </html>
