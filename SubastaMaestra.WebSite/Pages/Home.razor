@@ -1,7 +1,107 @@
 ﻿@page "/"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
 
-<PageTitle>Home</PageTitle>
+@inject IAuctionService _auctionService;
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<h1>Hello, world!</h1>
+    <style>
+        .custom-img-height {
+            max-height: 300px; /* Ajusta la altura a lo que necesites */
+            object-fit: cover; /* Recorta la imagen si es necesario */
+            width: 100%; /* Mantiene la imagen adaptada al contenedor */
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide gallery -->
+    <div class="jumbotron bg-light text-center mb-1">
+        <div class="container">
+            <div class="col-xs-12">
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
 
-Welcome to your new app.
+                            <img src="puja_maestra3.png" class="d-block w-100 custom-img-height" alt="Subasta">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <ul class="nav nav-tabs mb-2">
+        <li class="nav-item">
+            <a class="nav-link  @(currentFilter == "Active" ? "active" : "text-decoration-none")" @onclick="() => FilterAuctions(AuctionState.Active)">Subastas Activas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentFilter == "Pending" ? "active" : "text-decoration-none")" @onclick="() => FilterAuctions(AuctionState.Pending)">Subastas próximas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(currentFilter == "Closed" ? "active" : "text-decoration-none")" @onclick="() => FilterAuctions(AuctionState.Closed)">Cerradas</a>
+        </li>
+    </ul>
+
+    @*  <div class="container mt-4">
+    <div class="d-flex justify-content-center mb-4">
+    <button class="btn btn-primary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Active)">Subastas abiertas</button>
+    <button class="btn btn-secondary mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Pending)">Subastas próximas</button>
+    <button class="btn btn-danger mx-2 px-4 py-2" @onclick="() => FilterAuctions(AuctionState.Closed)">Subastas finalizadas</button>
+    </div>
+    </div> *@
+    <!-- Thumbnails -->
+    <div class="container thumbs">
+        <div class="row">
+            @if (auctions != null && auctions.Count > 0)
+            {
+                @foreach (var auction in auctions)
+                {
+                    <div class="col-sm-6 col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="https://media.istockphoto.com/id/957011890/es/foto/s%C3%ADmbolo-de-la-ley-y-la-justicia-concepto-de-derecho-y-la-justicia.jpg?s=612x612&w=0&k=20&c=I6M-qLAh272sQY-pDklb2YS6zkXP7NCdGIxGxHCkxjw=" alt="Imagen de subasta" class="card-img-top">
+                            <div class="card-body">
+                                <h5 class="card-title">@auction.Title</h5>
+                                <p class="card-text mb-0">Fecha de inicio: @auction.StartDate.ToString("dd/MM/yyyy")</p>
+                                <p class="card-text mb-0">Fecha de fin: @auction.FinishDate.ToString("dd/MM/yyyy")</p>
+                                <a href="productos/@auction.Id" class="btn btn-outline-primary">Ver Productos</a>
+                                @if (auction.State == AuctionState.Pending)
+                                {
+                                    <a href="create-product/@auction.Id" class="btn btn-outline-success">Agregar Producto</a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center">
+                    <p>No hay subastas disponibles en este momento.</p>
+                </div>
+            }
+        </div>
+    </div>
+</body>
+</html>
+
+@code
+{
+    private List<AuctionDTO> auctions;
+    string currentFilter = "Active";
+    protected override async Task OnInitializedAsync()
+    {
+        await FilterAuctions(AuctionState.Active); // Subastas activas por defecto
+    }
+
+    private async Task FilterAuctions(AuctionState state)
+    {
+        currentFilter = state.ToString();
+        auctions = await _auctionService.GetAuctionsByState(state);
+    }
+
+}

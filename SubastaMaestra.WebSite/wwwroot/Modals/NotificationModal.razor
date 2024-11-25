@@ -1,0 +1,106 @@
+﻿@using SubastaMaestra.Models.DTOs;
+@inject IUserService UserService
+@inject AuthenticationService AuthService
+@inject INotificationService NotificationService
+
+<div class="modal show" tabindex="-1" style="display: block; background-color: rgba(0, 0, 0, 0.5);" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); font-size: 14px;">
+            <div class="modal-header" style="border-bottom: 1px solid #ddd; padding: 10px;">
+                <h5 class="modal-title" style="font-weight: bold; font-size: 16px;">Notificaciones</h5>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 15px;">
+                @if (isLoading)
+                {
+                    <p style="text-align: center; color: #666;">Cargando notificaciones...</p>
+                }
+                else if (notifications?.Any() == true)
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var notification in notifications)
+                        {
+                            <li class="list-group-item" style="border: none; padding: 10px; margin-bottom: 8px; background-color: #f9f9f9; border-radius: 5px;">
+                                <div>
+                                    <h6 style="font-weight: bold; color: #333;">
+                                        @notification.Title
+                                        <small class="text-muted" style="font-size: 12px;">(@notification.Created_at.ToString("g"))</small>
+                                    </h6>
+                                    <p style="margin: 5px 0; font-size: 13px; color: #555;">@notification.Body</p>
+                                </div>
+                                @if (notification.Product != null)
+                                {
+                                    <div class="mt-2">
+                                        <a class="btn btn-link p-0" href="@($"ProductoDetalles/{notification.ProductoId}")" @onclick="CloseModal" style="font-size: 13px; text-decoration: underline;">
+                                            Producto: <strong>@notification.Product.Name</strong>
+                                        </a>
+                                    </div>
+                                }
+                                <div class="mt-2 d-flex align-items-center">
+                                    @if (notification.State.HasValue && notification.State.Value)
+                                    {
+                                        <span class="badge bg-success" style="font-size: 12px;">Leída</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-primary btn-sm"
+                                                style="margin-right: 10px; font-size: 12px; padding: 4px 8px;"
+                                                @onclick="() => MarkAsRead(notification.Id)">
+                                            Marcar como leído
+                                        </button>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p style="text-align: center; color: #666;">No tienes notificaciones.</p>
+                }
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #ddd; padding: 10px;">
+                <button type="button" class="btn btn-secondary btn-sm" style="font-size: 13px;" @onclick="CloseModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnNotificationsUpdated { get; set; }
+    private List<NotificationDTO> notifications;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNotifications();
+    }
+
+    private async Task LoadNotifications()
+    {
+        isLoading = true;
+        var userId = await AuthService.GetUserId();
+        notifications = await UserService.GetNotificationsAsync(userId);
+        isLoading = false;
+    }
+
+    public async Task MarkAsRead(int notifId)
+    {
+        var result = await NotificationService.MarkAsRead(notifId);
+        if (result.Success)
+        {
+            var notification = notifications.FirstOrDefault(n => n.Id == notifId);
+            if (notification != null)
+            {
+                notification.State = true; // Actualizamos el estado localmente
+                await OnNotificationsUpdated.InvokeAsync(); // Notificamos al padre
+            }
+        }
+    }
+
+    private async Task CloseModal()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

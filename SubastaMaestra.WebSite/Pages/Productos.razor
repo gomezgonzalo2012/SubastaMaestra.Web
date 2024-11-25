@@ -1,0 +1,244 @@
+﻿@page "/Productos/{auctionId:int}"
+@using SubastaMaestra.Models.DTOs.Auction;
+@using SubastaMaestra.Models.DTOs.Product;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
+@inject NavigationManager NavManager;
+
+@inject IProductService _productService;
+@inject IAuctionService _auctionService;
+@* 
+<html>
+<head>
+    <title>Subasta Maestra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head> *@
+
+<body>
+    <!-- Título de la subasta y botón de publicar producto -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-4">@auctionTitle</h1>
+                <p class="lead">Cierre: @finishDate.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+            <div class="col-md-4 text-end">
+                @if (auctionState == AuctionState.Pending)
+                {
+                    <a href="create-product/@auctionId" class="btn btn-primary">Publicar Producto</a>
+                }
+            </div>
+        </div>
+
+        @if (products == null)
+        {
+            <p class="text-center">Cargando productos...</p>
+        }
+        else if (!products.Any())
+        {
+            <p class="text-center">No hay productos en esta subasta.</p>
+        }
+        else
+        {
+            <div class="thumbs">
+                <div class="row">
+                    @foreach (var product in products)
+                    {
+                        <div class="col-sm-6 col-md-4 mb-4 position-relative">
+                            @if (product.CurrentState == ProductState.Sold)
+                            {
+                                <div class="sold-banner">Vendido</div>
+                            }
+                            <div class="card h-100 shadow-sm">
+                                <!-- Imagen del producto -->
+                                <img src="@(string.IsNullOrEmpty(product.ImgUrl) ? "/images/imagen_articulo_por_defecto.jpg" : product.ImgUrl)"
+                                     alt="@product.Name"
+                                     class="card-img-top h-100  rounded"
+                                     onerror="this.src='/images/imagen_articulo_por_defecto.jpg';">
+
+                                <div class="card-body">
+                                    <!-- Título destacado -->
+                                    <h5 class="card-title text-dark fw-bold mb-2">@product.Name</h5>
+
+                                    <!-- Detalles del producto -->
+                                    <p class="mb-0">
+                                        <span class="text-muted">Estado: </span>
+                                        <span class="fw-bold">@(product.Condition == 0 ? "Nuevo" : "Usado")</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="text-muted">Precio Base: </span>
+                                        <span class="fw-bold">$@product.InitialPrice.ToString("N2")</span>
+                                    </p>
+                                   @*  <!-- Nombre del producto -->
+                                    <h5 class="card-title text-primary">@product.Name</h5>
+
+                                    <!-- Condición del producto -->
+                                    <p class="text-muted">Condición: <span class="fw-bold">@product.Condition</span></p>
+
+                                    <!-- Precio base -->
+                                    <p class="text-muted">Precio Base: <span class="fw-bold">$@product.InitialPrice.ToString("N2")</span></p> *@
+
+                                    <!-- Información según estado -->
+                                    @switch (product.CurrentState)
+                                    {
+                                        case ProductState.Pending:
+                                            <p>Estado: <span class ="text-warning">Pendiente </span> </p>
+                                            <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+
+                                            break;
+
+                                        case ProductState.Active:
+                                            <p class="mb-0">
+                                                <span>Estado: <span class="text-success">Activo </span> </span><br />
+                                                <span>Número de Ofertas: <span class="fw-bold">@product.NumberOfOffers</span></span>
+                                            </p>
+                                            @if (auctionState == AuctionState.Active)
+                                            {
+                                                <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles/Ofertar</a>
+                                            }else{
+                                                <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+                                            }
+
+                                            break;
+
+                                        case ProductState.Disabled:
+                                            <p>Estado: <span class="text-danger">Deshabilitado </span> </p>
+                                            break;
+
+                                        case ProductState.Sold:
+                                           
+                                            <p class="mb-0">
+                                                <span class="text-muted">Ofertas: </span>
+                                                <span class="fw-bold">@product.NumberOfOffers</span>
+                                            </p>
+                                            <p class="mb-0 text-success">
+                                                <span class="text-muted">Precio Final: </span>
+                                                <span class="fw-bold">$@product.FinalPrice?.ToString("N2")</span>
+                                            </p>
+                                            <p class="mb-0 text-success">
+                                                <span class="text-muted">Ganador: </span>
+                                                <span class="fw-bold">@product.BuyerName</span>
+                                            </p>
+                                            <a href="ProductoDetalles/@product.Id" class="btn btn-outline-primary btn-sm">Ver Detalles</a>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                   @*  @foreach (var product in products)
+                    {
+                        <div class="col-sm-6 col-md-4 mb-4 position-relative">
+                            @if (product.CurrentState == ProductState.Sold)
+                            {
+                                <div class="sold-banner">Vendido</div>
+                            }
+                            <div class="card h-100 shadow-sm border-0">
+                                <!-- Imagen del producto -->
+                                <img src="@(string.IsNullOrEmpty(product.ImgUrl) ? "/images/imagen_articulo_por_defecto.jpg" : product.ImgUrl)"
+                                     alt="@product.Name"
+                                     class="card-img-top h-100  rounded"
+                                     onerror="this.src='/images/imagen_articulo_por_defecto.jpg';">
+
+
+                                <div class="card-body">
+                                    <!-- Título destacado -->
+                                    <h5 class="card-title text-dark fw-bold mb-2">@product.Name</h5>
+
+                                    <!-- Detalles del producto -->
+                                    <p class="mb-0">
+                                        <span class="text-muted">Estado: </span>
+                                        <span class="fw-bold">@product.Condition</span>
+                                    </p>
+                                    <p class="mb-0">
+                                        <span class="text-muted">Precio Base: </span>
+                                        <span class="fw-bold">$@product.InitialPrice</span>
+                                    </p>
+
+                                    <h5 class="card-title"><strong>@product.Name</strong></h5>
+                                    <p class="card-text">Condición: @(product.Condition == 0 ? "Nuevo" : "Usado")</p>
+                                    <p class="card-text">Precio Base: $@product.InitialPrice</p>
+                                    @if (auctionState == AuctionState.Active)
+                                    {
+                                        <p class="mb-0">
+                                            <span class="text-muted">Ofertas: </span>
+                                            <span class="fw-bold">@product.NumberOfOffers</span>
+                                        </p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-primary btn-sm">Ver Detalles/Ofertar</a>
+                                    }
+                                    else if (auctionState == AuctionState.Pending)
+                                    {
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-secondary btn-sm">Ver Detalles</a>
+                                    }
+                                    else if (auctionState == AuctionState.Closed)
+                                    {
+                                        <p class="mb-0">
+                                            <span class="text-muted">Ofertas: </span>
+                                            <span class="fw-bold">@product.NumberOfOffers</span>
+                                        </p>
+                                        <p class="mb-0 text-success">
+                                            <span class="text-muted">Precio Final: </span>
+                                            <span class="fw-bold">$@product.FinalPrice</span>
+                                        </p>
+                                        <p class="mb-0 text-success">
+                                            <span class="text-muted">Ganador: </span>
+                                            <span class="fw-bold">@product.BuyerName</span>
+                                        </p>
+                                        <a href="ProductoDetalles/@product.Id" class="btn btn-secondary btn-sm">Ver Detalles</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    } *@
+
+                </div>
+            </div>
+        }
+    </div>
+</body>
+
+@* </html> *@
+
+
+
+@code {
+    [Parameter]
+    public int auctionId { get; set; }
+
+    private List<ProductDTO> products;
+    private string auctionTitle;
+    private DateTime finishDate;
+    private AuctionState auctionState;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAuctionAndProducts();
+    }
+
+    private async Task LoadAuctionAndProducts()
+    {
+        try
+        {
+            // Obtener datos de la subasta
+            var auctionDetails = await _auctionService.GetByIdAsync(auctionId);
+            auctionTitle = auctionDetails.Title;
+            finishDate = auctionDetails.FinishDate;
+            auctionState = auctionDetails.State;
+
+            // Obtener productos relacionados a la subasta
+            products = await _productService.GetProductsByAuction(auctionId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+    }
+    private void ToLogin()
+    {
+        // Guardar la URL actual para redirigir después del login
+        var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+        NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+
+    }
+}

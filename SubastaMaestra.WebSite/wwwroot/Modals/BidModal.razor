@@ -1,0 +1,108 @@
+﻿<!-- BidModal.razor -->
+@using Microsoft.AspNetCore.Authorization
+@using SubastaMaestra.Models.DTOs.Bid;
+@using SubastaMaestra.Entities.Enums;
+@attribute [Authorize];
+@inject AuthenticationService authService;
+@inject IBidService BidService
+@inject NavigationManager NavManager
+
+<div class="modal show" tabindex="-1" style="display: block;" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Realizar Oferta</h5>
+                <button type="button" class="close" @onclick="(() => OnClose.InvokeAsync(false))">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert alert-danger">@Message</div>
+                }
+
+                <div class="form-group">
+                    <label>Monto de la oferta</label>
+                    <InputNumber @bind-Value="bid.Amount" class="form-control" placeholder="Ej. 500" />
+                </div>
+
+                <div class="form-group">
+                    <label>Método de pago</label>
+                    @* <InputSelect @bind-Value="bid.PaymentMethods" class="form-control">
+                        <option value="">Selecciona un método</option>
+                        <option value="1">Tarjeta de crédito</option>
+                        <option value="2">Transferencia bancaria</option>
+                        <option value="3">PayPal</option>
+                    </InputSelect> *@
+                    <InputSelect id="deliveryCondition" class="form-control form-control-sm" @bind-Value="bid.PaymentMethods">
+                        <option value="">Selecciona una opción</option>
+                        @foreach (var condition in Enum.GetValues(typeof(PaymentMethods)))
+                        {
+                            <option value="@condition">@condition</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="(() => OnClose.InvokeAsync(false))">Cancelar</button>
+                <button type="button" class="btn btn-primary" @onclick="SubmitBid" disabled="@IsSubmitting">Ofertar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int ProductId { get; set; }
+    [Parameter] public EventCallback OnBidPlaced { get; set; }
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    private string userId;
+
+    private BidCreateDTO bid = new BidCreateDTO();
+    private string? Message;
+    private bool IsSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        // Obtener el token del localStorage
+        var token = await authService.GetTokenAsync();
+
+        // Verificar si el token no existe o ha expirado
+        if (string.IsNullOrWhiteSpace(token) || authService.IsTokenExpired(token))
+        {
+            // Guardar la URL actual para redirigir después del login
+            var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+            NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+        }
+        userId = await authService.GetUserId();
+
+    }
+
+    private async Task SubmitBid()
+    {
+        if (userId == null)
+        {
+            Message = "Usuario no autenticado.";
+            return;
+        }
+
+        IsSubmitting = true;
+        bid.ProductId = ProductId;
+        bid.BidderId = int.Parse(userId); 
+
+        var success = await BidService.CreateBid(bid);
+        if (success)
+        {
+            Message = null;
+            await OnBidPlaced.InvokeAsync();
+            await OnClose.InvokeAsync(true);
+        }
+        else
+        {
+            Message = "Error al enviar la oferta. Verifique el monto precio base del producto.";
+        }
+        IsSubmitting = false;
+    }
+
+}

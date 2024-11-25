@@ -1,0 +1,140 @@
+﻿@page "/misOfertas"
+
+<h3>Mis Ofertas</h3>
+
+@using SubastaMaestra.Entities.Enums;
+@using SubastaMaestra.Models.DTOs.Bid;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Enums;
+@using SubastaMaestra.WebSite.Services;
+@using SubastaMaestra.Entities.Core;
+
+@inject IUserService _userService;
+@inject AuthenticationService _authService;
+
+@code {
+    public string userId { get; set; }
+    public List<BidDTO>? Bids { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        userId = await _authService.GetUserId();
+        int user_id = int.Parse(userId);
+        Bids = await _userService.GetMyBids(user_id);
+    }
+
+    private string GetProductState(ProductState state)
+    {
+        return state switch
+        {
+            ProductState.Sold => "Vendido",
+            ProductState.Disabled => "Deshabilitado",
+            ProductState.Pending => "Pendiente",
+            ProductState.Active => "Activo",
+            _ => "Desconocido"
+        };
+    }
+}
+
+@if (Bids != null)
+{
+    <div class="container">
+        <div class="row">
+            @if (Bids.Count > 0)
+            {
+                @foreach (var bid in Bids)
+                {
+                    <div class="col-md-6 mb-4 position-relative">
+                        <!-- Rótulo de vendido (solo visible si el estado es Sold) -->
+                        @if (bid.Product.CurrentState == ProductState.Sold && (int.Parse(userId) == bid.Product.BuyerId))
+                        {
+                            <div class="won-banner">Ganado</div>
+                        }
+
+                        <div class="card shadow-sm">
+                            <div class="row g-0">
+                                <!-- Imagen del producto -->
+                                <div class="col-md-4">
+                                    <div class="product-image-wrapper">
+                                        <img src="@bid.Product.ImgUrl" class="img-fluid rounded-start product-image" alt="Imagen de Producto">
+                                    </div>
+                                </div>
+
+                                <!-- Contenido del producto -->
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <!-- Título y estado del producto -->
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-primary text-light" style="font-size: 0.75rem;">Oferta</span>
+                                            <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-calendar-event"></i> @bid.OfferDate.ToString("dd/MM/yyyy")</span>
+                                        </div>
+
+                                        <!-- Nombre del producto -->
+                                        <h5 class="card-title" style="font-size: 1rem;">@bid.Product.Name</h5>
+
+                                        <!-- Detalles de la oferta y producto -->
+                                        <p style="font-size: 0.85rem;">
+                                            Precio inicial: <span class="fw-bold">@bid.Product.InitialPrice.ToString("N2")</span><br />
+                                            Tu oferta: <span class="text-success fw-bold">@bid.Price.ToString("N2")</span><br />
+                                            Método de pago: @bid.PaymentMethods<br />
+                                            Estado del producto: @GetProductStateLabel(bid.Product.CurrentState)
+                                        </p>
+
+
+                                        <!-- Botón de detalles -->
+                                        <a class="btn btn-purple btn-sm mt-1" href="@($"ProductoDetalles/{bid.ProductId}")">Ver Detalles</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+            else
+            {
+                <p class="text-center">No tienes ofertas realizadas</p>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p>Cargando ofertas...</p>
+}
+
+<style>
+    .product-image-wrapper {
+        width: 100%;       /* Ocupa el ancho total del contenedor */
+        height: 200px;     /* Define una altura fija para todas las imágenes */
+        overflow: hidden;  /* Oculta el desbordamiento */
+        border-radius: 10px; /* Opcional: bordes redondeados */
+    }
+
+    .product-image {
+        width: 100%;            /* Ancho completo del contenedor */
+        height: 100%;           /* Altura completa del contenedor */
+        object-fit: cover;      /* Ajusta la imagen sin distorsión */
+        object-position: center; /* Centra la imagen en el contenedor */
+    }
+
+    .btn-purple {
+        color: #fff;
+        background-color: #8901CF;
+        border-color: #8901CF;
+    }
+</style>
+
+@code {
+    private string GetProductStateLabel(ProductState state)
+    {
+        return state switch
+        {
+            ProductState.Pending => "Pendiente",
+            ProductState.Active => "Activo",
+            ProductState.Disabled => "Deshabilitado",
+            ProductState.Sold => "Vendido",
+            _ => "Desconocido" // Para valores que no estén en el enum
+        };
+    }
+}

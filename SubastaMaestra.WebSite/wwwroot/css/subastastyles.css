@@ -1,0 +1,33 @@
+﻿.sold-banner {
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    background-color: rgba(255, 0, 0, 0.8);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    transform: rotate(-45deg);
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.won-banner {
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    background-color: rgb(0, 255, 33);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    transform: rotate(-45deg);
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.btn-purple {
+    color: #fff;
+    background-color: #8901CF;
+    border-color: #8901CF;
+}
