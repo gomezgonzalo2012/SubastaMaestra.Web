@@ -5,6 +5,6 @@ namespace SubastaMaestra.WebSite.Services
 {
     public interface IBidService
     {
-        Task<bool> CreateBid(BidCreateDTO bid);
+        Task<(bool Success, string Message)> CreateBid(BidCreateDTO bid);
     }
 }
