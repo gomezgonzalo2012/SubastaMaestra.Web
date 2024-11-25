@@ -3,6 +3,7 @@
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.WebSite.Services;
 @using SubastaMaestra.Entities.Enums;
+@inject NavigationManager NavManager;
 
 @inject IProductService _productService;
 @inject IAuctionService _auctionService;
@@ -24,7 +25,7 @@
             <div class="col-md-4 text-end">
                 @if (auctionState == AuctionState.Pending)
                 {
-                    <button class="btn btn-primary">Publicar producto</button>
+                    <a href="create-product/@auctionId" class="btn btn-primary">Publicar Producto</a>
                 }
             </div>
         </div>
@@ -62,7 +63,7 @@
                                     <!-- Detalles del producto -->
                                     <p class="mb-0">
                                         <span class="text-muted">Estado: </span>
-                                        <span class="fw-bold">@product.Condition</span>
+                                        <span class="fw-bold">@(product.Condition == 0 ? "Nuevo" : "Usado")</span>
                                     </p>
                                     <p class="mb-0">
                                         <span class="text-muted">Precio Base: </span>
@@ -155,6 +156,9 @@
                                         <span class="fw-bold">$@product.InitialPrice</span>
                                     </p>
 
+                                    <h5 class="card-title"><strong>@product.Name</strong></h5>
+                                    <p class="card-text">Condición: @(product.Condition == 0 ? "Nuevo" : "Usado")</p>
+                                    <p class="card-text">Precio Base: $@product.InitialPrice</p>
                                     @if (auctionState == AuctionState.Active)
                                     {
                                         <p class="mb-0">
@@ -229,5 +233,12 @@
         {
             Console.WriteLine("Error: " + ex.Message);
         }
+    }
+    private void ToLogin()
+    {
+        // Guardar la URL actual para redirigir después del login
+        var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+        NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+
     }
 }

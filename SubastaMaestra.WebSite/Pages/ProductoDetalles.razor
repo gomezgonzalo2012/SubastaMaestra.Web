@@ -1,4 +1,217 @@
-﻿<!-- ProductoDetalles.razor -->
+﻿@page "/ProductoDetalles/{id:int}"
+
+@using SubastaMaestra.Models.DTOs.Auction
+@using SubastaMaestra.Models.DTOs.Product
+@using SubastaMaestra.WebSite.Services
+@using SubastaMaestra.Entities.Enums
+@using SubastaMaestra.WebSite.wwwroot.Modals
+@inject NavigationManager NavManager
+
+
+@inject IProductService _productService;
+
+<div class="container mt-4">
+    @if (Product == null)
+    {
+        <div class="alert alert-danger" role="alert">Producto no encontrado.</div>
+    }
+    else if (!ProductFound)
+    {
+        <div class="alert alert-warning" role="alert">No se encontró el producto.</div>
+    }
+    else
+    {
+        <!-- Tarjeta de detalles del producto -->
+        <div class="card shadow-sm mb-4">
+            @if (Product.CurrentState == ProductState.Sold)
+            {
+                <div class="sold-banner">Vendido</div>
+            }
+            <div class="row g-0">
+                <!-- Imagen del producto -->
+                <div class="col-md-4">
+                    <div class="product-image-wrapper">
+                        <img src="@Product.ImgUrl" alt="@Product.Name" class="img-fluid product-image" />
+                    </div>
+                </div>
+
+                <!-- Información del producto -->
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <!-- Título y subasta -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="card-title text-primary">@Product.Name.ToUpper()</h3>
+                            <span class="badge @GetAuctionBadgeColor(Product.Auction.CurrentState)">
+                                Subasta: @Product.Auction?.Title
+                            </span>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <p class="card-text">
+                            <strong>Condición:</strong> @(Product.Condition == 0 ? "Nuevo" : "Usado")<br />
+                            <strong>Estado actual:</strong> @Product.CurrentState<br />
+                            <strong>Fecha de creación:</strong> @Product.CreatedAt.ToString("dd/MM/yyyy")
+                        </p>
+                        <p class="card-text mt-2"><strong>Descripción:</strong> @Product.Description</p>
+                        <p class="card-text"><strong>Categoría:</strong> @Product.Category?.Name</p>
+                        <hr />
+
+                        <!-- Precios -->
+                        <p class="fw-bold mb-0">Precio Inicial</p>
+                        <h4 class="text-primary">AR$ @Product.InitialPrice.ToString("N2")</h4>
+
+                        @if (Product.FinalPrice.HasValue && Product.FinalPrice.Value > 0)
+                        {
+                            <p class="fw-bold mt-2">Precio Final</p>
+                            <h4 class="text-success">AR$ @Product.FinalPrice.Value.ToString("N2")</h4>
+                        }
+
+                        <!-- Botones según el estado -->
+                        @if ((Product.CurrentState.ToString() == "Active") && (Product.Auction.CurrentState== AuctionState.Active ))
+                        {
+                            <AuthorizeView>
+                                <Authorized>
+                                    <button class="btn btn-primary mt-3" @onclick="OpenBidModal">Ofertar</button>
+                                </Authorized>
+                                <NotAuthorized>
+                                        <div class="nav-item">
+                                        <NavLink class="btn btn-outline-primary btn-sm" @onclick="ToLogin">
+                                                
+                                                <i class="bi bi-box-arrow-in-right me-1"></i> Inicia sesión para ofertar
+                                            </NavLink>
+                                        </div>
+                                </NotAuthorized>
+                            </AuthorizeView>
+
+                        }
+                        else if((Product.Auction.CurrentState == AuctionState.Pending) && (Product.CurrentState == ProductState.Active)){
+                            <div class="alert alert-info mt-3" role="alert">
+                                Espera a que la subasta este activa para poder oferta.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info mt-3" role="alert">
+                                Este producto no está disponible para ofertar en este momento.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (IsBidModalOpen)
+{
+    <BidModal ProductId="@Product.Id" OnBidPlaced="HandleBidPlaced" OnClose="CloseBidModal" />
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ProductDTO Product { get; set; }
+    private bool ProductFound { get; set; } = true;
+    private bool IsBidModalOpen { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Product = await _productService.GetProductByIdAsync(Id);
+            if (Product == null)
+            {
+                ProductFound = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al cargar el producto: " + ex.Message);
+            ProductFound = false;
+        }
+    }
+
+    private void OpenBidModal()
+    {
+        IsBidModalOpen = true;
+    }
+
+    private void CloseBidModal(bool bidPlaced)
+    {
+        IsBidModalOpen = false;
+
+        if (bidPlaced)
+        {
+            // Lógica adicional, como recargar datos del producto o mostrar un mensaje de éxito.
+        }
+    }
+
+    private void HandleBidPlaced()
+    {
+        // Aquí puedes actualizar el número de ofertas o cualquier otro detalle relevante.
+    }
+
+    private void ToLogin()
+    { 
+            // Guardar la URL actual para redirigir después del login
+            var currentUrl = NavManager.ToBaseRelativePath(NavManager.Uri);
+            NavManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(currentUrl)}");
+
+    }
+    private string GetAuctionBadgeColor(AuctionState state)
+    {
+        return state switch
+        {
+            AuctionState.Active => "badge-success",
+            AuctionState.Pending => "badge-warning",
+            AuctionState.Closed => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+}
+<style>
+    .product-image-wrapper {
+        width: 100%;
+        height: 250px;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .badge-success {
+        background-color: #28a745;
+    }
+
+    .badge-warning {
+        background-color: #ffc107;
+    }
+
+    .badge-danger {
+        background-color: #dc3545;
+    }
+
+    .badge-secondary {
+        background-color: #6c757d;
+    }
+
+    .btn-purple {
+        background-color: #6f42c1;
+        color: white;
+    }
+
+    .btn-purple:hover {
+        background-color: #5a379d;
+    }
+</style>
+
+@* <!-- ProductoDetalles.razor -->
 @page "/ProductoDetalles/{id:int}"
 @using SubastaMaestra.Models.DTOs.Auction
 @using SubastaMaestra.Models.DTOs.Product
@@ -27,7 +240,7 @@
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
-                        <h3 class="card-title">@Product.Name</h3>
+                        <h3 class="card-title"><strong>@Product.Name</strong></h3>
                         <p class="card-text"><strong>Condición:</strong> @(Product.Condition == 0 ? "Nuevo" : "Usado")</p>
                         <p class="card-text"><strong>Precio Base:</strong> $@Product.InitialPrice</p>
                         @if (Product.FinalPrice > 0)
@@ -35,9 +248,12 @@
                             <p class="card-text"><strong>Precio Final:</strong> $@Product.FinalPrice</p>
                         }
                         <p class="card-text"><strong>Descripción:</strong> @Product.Description</p>
+                        <p class="card-text"><strong>Categoría:</strong> @Product.Category.Name</p>
+
                         
                         <p class="card-text"><strong>Ofertas:</strong> @Product.NumberOfOffers</p>
-                        <p class="card-text"><strong>Modo de entrega:</strong> @(Product.DeliveryCondition == 0 ? "Pick-up" : "Delivery")</p>
+                        <p class="card-text"><strong>Modo de entrega:</strong> @Enum.GetName(typeof(DeliveryModes), Product.DeliveryCondition)</p>
+
 
                         @if (Product.CurrentState.ToString() == "Active" && Product.Auction.CurrentState== AuctionState.Active )
                         {
@@ -123,3 +339,4 @@
         // Aquí puedes actualizar el número de ofertas o cualquier otro detalle relevante.
     }
 }
+ *@

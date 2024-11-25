@@ -2,6 +2,7 @@
 
 <h3>Mis Products</h3>
 
+@using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.Models.DTOs.Product;
 @using SubastaMaestra.Entities.Enums;
 @using SubastaMaestra.WebSite.Services;
@@ -63,9 +64,12 @@
 
                                         <!-- Condición y Estado actual -->
                                         <p class="card-text ">
-                                            Condición: @product.Condition<br />
-                                            Estado actual: @product.CurrentState<br />
-                                            <span><i class="bi bi-hammer"></i> Ofertas: @product.NumberOfOffers</span>
+                                        Condición: @(product.Condition == 0 ? "Nuevo" : "Usado") <br/>
+                                            Estado actual: @GetProductStateLabel(product.CurrentState)<br/>
+                                            <span><i class="bi bi-hammer"></i> Ofertas: @product.NumberOfOffers</span><br />
+                                            Fecha de creación: @product.CreatedAt.ToString("dd/MM/yyyy")
+                                           
+
                                         </p>
 
                                         <hr />
@@ -121,3 +125,16 @@ else
         background-color: rgb(170,222,239);
     }
 </style>
+
+@code {
+            private string GetProductStateLabel(ProductState state)
+    {
+        return state switch
+        {
+            ProductState.Pending => "Pendiente",
+            ProductState.Active => "Activo",
+            ProductState.Disabled => "Deshabilitado",
+            ProductState.Sold => "Vendido",
+            _ => "Desconocido" // Para valores que no estén en el enum
+        };
+    }}
