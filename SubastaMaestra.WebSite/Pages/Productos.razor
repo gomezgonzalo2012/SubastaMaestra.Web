@@ -22,12 +22,6 @@
                 <h1 class="display-4">@auctionTitle</h1>
                 <p class="lead">Cierre: @finishDate.ToString("dd/MM/yyyy HH:mm")</p>
             </div>
-            <div class="col-md-4 text-end">
-                @if (auctionState == AuctionState.Pending)
-                {
-                    <a href="create-product/@auctionId" class="btn btn-primary">Publicar Producto</a>
-                }
-            </div>
         </div>
 
         @if (products == null)
