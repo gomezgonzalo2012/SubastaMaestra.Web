@@ -50,9 +50,11 @@
                         <p class="card-text">
                             <strong>Condición:</strong> @(Product.Condition == 0 ? "Nuevo" : "Usado")<br />
                             <strong>Estado actual:</strong> @Product.CurrentState<br />
+                            <strong>Vendedor:</strong> @(string.IsNullOrEmpty(Product.SellerName) ? "Desconocido" : Product.SellerName)<br />
+                            <strong>Ofertas:</strong> @Product.NumberOfOffers<br />
                             <strong>Fecha de creación:</strong> @Product.CreatedAt.ToString("dd/MM/yyyy")
                         </p>
-                        <p class="card-text mt-2"><strong>Descripción:</strong> @Product.Description</p>
+                        <p class="card-text mt-1"><strong>Descripción:</strong> @Product.Description</p>
                         <p class="card-text"><strong>Categoría:</strong> @Product.Category?.Name</p>
                         <hr />
 

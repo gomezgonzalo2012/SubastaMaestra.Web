@@ -112,7 +112,7 @@
     private async Task HandleLogout()
     {
         await AuthService.Logout();
-        Navigation.NavigateTo("/login");
+        Navigation.NavigateTo("/");
     }
 
     public void Dispose()
